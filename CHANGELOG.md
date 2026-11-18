@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-11-18)
+
+### Refactoring
+
+- Rename project from postgres-mcp to pgscope
+  ([`45bbd7b`](https://github.com/Diaszano/postgres-mcp/commit/45bbd7b4ba1baad1286e0d99eb76803f79761d27))
+
+### Breaking Changes
+
+- The package, CLI and image are now named pgscope, and POSTGRES_MCP_INCLUDE_LANGFUSE_TRACE is now
+  PGSCOPE_INCLUDE_LANGFUSE_TRACE.
+
+
 ## v0.5.1 (2026-11-04)
 
 ### Bug Fixes
