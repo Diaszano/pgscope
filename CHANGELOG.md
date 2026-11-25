@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## [0.6.2](https://github.com/Diaszano/pgscope/compare/v0.6.1...v0.6.2) (2026-11-25)
+
+
+### Bug Fixes
+
+* find the release PR through the REST API to enable auto-merge ([#45](https://github.com/Diaszano/pgscope/issues/45)) ([b0385a9](https://github.com/Diaszano/pgscope/commit/b0385a90bc9e503a95130c31fa1261d7ab837269))
+
 ## [0.6.1](https://github.com/Diaszano/pgscope/compare/v0.6.0...v0.6.1) (2026-11-25)
 
 
