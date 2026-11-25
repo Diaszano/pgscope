@@ -29,10 +29,12 @@ def test_keyset_uses_bound_last_seen_value():
     assert plan.params == (marker, 100)
     statement = parse_sql(plan.sql.replace("%s", "$1"))[0].stmt
     assert isinstance(statement, SelectStmt)
-    assert statement.whereClause is not None
+    where = statement.whereClause
+    assert isinstance(where, ast.A_Expr)
+    assert isinstance(where.rexpr, ast.ParamRef)
+    assert where.name is not None
+    assert tuple(part.sval for part in where.name) == ("pg_catalog", ">")
     assert statement.sortClause is not None
-    assert isinstance(statement.whereClause.rexpr, ast.ParamRef)
-    assert tuple(part.sval for part in statement.whereClause.name) == ("pg_catalog", ">")
     assert statement.sortClause[0].node.fields[0].sval == "id"
 
 
@@ -41,10 +43,15 @@ def test_existing_filter_preserved():
     plan = build_page_query(query, offset=None, last_key=100, limit=10)
     statement = parse_sql(plan.sql.replace("%s", "$1"))[0].stmt
     assert isinstance(statement, SelectStmt)
-    assert statement.whereClause is not None
-    assert statement.whereClause.boolop.name == "AND_EXPR"
-    assert statement.whereClause.args[0].boolop.name == "OR_EXPR"
-    assert len(statement.whereClause.args[0].args) == 2
+    where = statement.whereClause
+    assert isinstance(where, ast.BoolExpr)
+    assert where.boolop is not None and where.args is not None
+    assert where.boolop.name == "AND_EXPR"
+    left = where.args[0]
+    assert isinstance(left, ast.BoolExpr)
+    assert left.boolop is not None and left.args is not None
+    assert left.boolop.name == "OR_EXPR"
+    assert len(left.args) == 2
 
 
 def test_bad_identifiers_and_strings_are_safe():

@@ -510,6 +510,7 @@ class SqlBindParams:
 
             # Get the statement tree
             stmt = parsed[0].stmt
+            assert stmt is not None
 
             # Use TableAliasVisitor to extract aliases
             alias_visitor = TableAliasVisitor()

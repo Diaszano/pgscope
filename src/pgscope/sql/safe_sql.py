@@ -871,7 +871,7 @@ class SafeSqlDriver(SqlDriver):
             A_Expr_Kind.AEXPR_ILIKE,
         ):
             # Get the right-hand side of the LIKE expression (the pattern)
-            if isinstance(node.rexpr, A_Const) and node.rexpr.val is not None and hasattr(node.rexpr.val, "sval") and node.rexpr.val.sval is not None:
+            if isinstance(node.rexpr, A_Const) and node.rexpr.val is not None and getattr(node.rexpr.val, "sval", None) is not None:
                 # Nothing to do for now
                 pass
             else:
@@ -916,7 +916,7 @@ class SafeSqlDriver(SqlDriver):
                 raise ValueError(f"CREATE EXTENSION {node.extname} is not supported")
 
         # Recursively validate all attributes that might be nodes
-        for attr_name in node.__slots__:
+        for attr_name in node.__slots__:  # pyright: ignore[reportAttributeAccessIssue]
             # Skip private attributes and methods
             if attr_name.startswith("_"):
                 continue
@@ -1074,7 +1074,7 @@ async def validate_restricted_function_resolution(cursor: Any, query: str) -> No
                 raise SQLValidationError("Error validating query: untrusted type resolution")
             types.add(parts[-1])
         if isinstance(value, Node):
-            for attribute in value.__slots__:
+            for attribute in value.__slots__:  # pyright: ignore[reportAttributeAccessIssue]
                 if not attribute.startswith("_"):
                     visit(getattr(value, attribute, None))
         elif isinstance(value, (tuple, list)):

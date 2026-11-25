@@ -809,6 +809,7 @@ async def test_condition_column_collector_simple(async_sql_driver):
     """Test basic functionality of ConditionColumnCollector."""
     query = "SELECT hobby FROM users WHERE name = 'Alice' AND age > 25"
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ColumnCollector()
     collector(parsed)
@@ -831,6 +832,7 @@ async def test_condition_column_collector_join(async_sql_driver):
     WHERE o.status = 'pending' AND u.active = true
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ColumnCollector()
     collector(parsed)
@@ -862,6 +864,7 @@ async def test_condition_column_collector_with_alias(async_sql_driver):
     ORDER BY order_count DESC
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     cond_collector = ConditionColumnCollector()
     cond_collector(parsed)
@@ -903,6 +906,7 @@ async def test_complex_query_with_alias_in_conditions(async_sql_driver):
     ORDER BY revenue DESC
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ColumnCollector()
     collector(parsed)
@@ -973,6 +977,7 @@ async def test_extract_condition_columns(async_sql_driver):
     WHERE o.status = 'pending' AND u.active = true
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ConditionColumnCollector()
     collector(parsed)
@@ -992,6 +997,7 @@ async def test_condition_collector_with_order_by(async_sql_driver):
     ORDER BY o.order_date DESC
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ConditionColumnCollector()
     collector(parsed)
@@ -1015,6 +1021,7 @@ async def test_condition_collector_with_order_by_alias(async_sql_driver):
     ORDER BY order_count DESC
     """
     parsed = parse_sql(query)[0].stmt
+    assert parsed is not None
 
     collector = ConditionColumnCollector()
     collector(parsed)
