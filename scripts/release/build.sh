@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
-# Synchronize uv.lock with stamped project version and build immutable distributions.
-# Executed automatically by Python Semantic Release as build_command.
+# Verify the lockfile and build immutable distributions (wheel + sdist) for a release.
+# Run by the release workflow after Release Please has stamped the version in the release PR.
 
 set -euo pipefail
-
-PACKAGE_NAME="${PACKAGE_NAME:-pgscope}"
-
-echo "==> Synchronizing uv.lock for ${PACKAGE_NAME}..."
-uv lock --upgrade-package "${PACKAGE_NAME}"
-
-echo "==> Staging updated lockfile..."
-git add uv.lock
 
 echo "==> Verifying lockfile integrity..."
 uv lock --check
@@ -18,4 +10,4 @@ uv lock --check
 echo "==> Building distribution packages (wheel + sdist)..."
 uv build
 
-echo "✅ Release build and lockfile synchronization completed successfully."
+echo "✅ Release build completed successfully."

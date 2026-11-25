@@ -97,7 +97,7 @@ jobs:
 
       - name: Generate and Update Homebrew Cask
         env:
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GH_PAT }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           TAG_NAME: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           TARGET_TAG="${TAG_NAME}"

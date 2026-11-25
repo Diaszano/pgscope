@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import tomllib
 from pathlib import Path
@@ -44,12 +45,9 @@ def test_cd_smoke_package_and_lock_invariants() -> None:
     assert version.count(".") == 2, f"Project version must be valid SemVer X.Y.Z, got: {version}"
     assert not version.startswith("v"), f"pyproject.toml version must be unprefixed, got: {version}"
 
-    # Verify PSR config in pyproject.toml
-    psr = data.get("tool", {}).get("semantic_release", {})
-    assert psr.get("version_toml") == ["pyproject.toml:project.version"]
-    assert psr.get("tag_format") == "v{version}"
-    assert psr.get("major_on_zero") is False
-    assert psr.get("allow_zero_version") is True
+    # Release Please is configured outside pyproject.toml; the manifest must track the project version.
+    manifest = json.loads((root / ".release-please-manifest.json").read_text(encoding="utf-8"))
+    assert manifest == {".": version}
 
 
 def test_cd_smoke_scripts_are_executable() -> None:

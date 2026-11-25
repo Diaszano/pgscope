@@ -24,11 +24,19 @@ The project uses GitHub Actions workflows for continuous validation and zero-man
 [Release Handoff]
        │
        ▼ (Trigger reusable .github/workflows/release.yml)
-[Semantic Release Job]
-       ├── Verify git baseline & clean history
-       ├── Python Semantic Release (PSR 10.7.0 via uvx)
-       ├── Calculate next SemVer (vX.Y.Z) & update pyproject.toml
-       ├── Create tag & GitHub Release with wheel/sdist assets
+[Release Please Job]
+       ├── Open/update the release PR "chore(release): X.Y.Z" (pyproject.toml, uv.lock, CHANGELOG.md)
+       ├── Enable auto-merge (squash); the PR must pass the required CI checks
+       └── When the release PR merges: create tag vX.Y.Z & GitHub Release
+       │
+       ▼ (On New Release)
+[Attach Distributions]
+       └── Build wheel/sdist and upload them to the GitHub Release
+       │
+       ▼ (On New Release)
+[Standalone Binaries & Homebrew] (.github/workflows/binaries.yml, triggered by the published release)
+       ├── Build darwin/linux amd64/arm64 tarballs + sha256 and upload to the GitHub Release
+       └── Update Casks/pgscope.rb in Diaszano/homebrew-tap
        │
        ▼ (On New Release)
 [Multiarch GHCR Staging & Delivery]
@@ -48,6 +56,7 @@ The project uses GitHub Actions workflows for continuous validation and zero-man
 
 - **Dependency Lock Verification**: `uv lock --check` ensures that dependencies in `uv.lock` strictly match `pyproject.toml`.
 - **Release Tag Specification**: Stable releases strictly follow the format `vX.Y.Z` where X, Y, and Z are non-negative integers. Prerelease tags (`-rc`, `-alpha`, `-beta`) are prohibited from stable delivery.
+- **Version Source**: Release Please derives the next version from Conventional Commits (`feat` bumps minor, `fix` bumps patch) and records it in `.release-please-manifest.json`, `pyproject.toml` and `uv.lock` in the release PR.
 - **Zero-Version Policy**: While on `0.x.y`, breaking changes increment minor (`0.3.0` -> `0.4.0`) rather than bumping to `1.0.0`.
 
 ## 3. Pulling and Verifying Images
@@ -66,13 +75,14 @@ docker run -it --rm \
 
 ## 4. Partial Release Recovery Procedure
 
-In rare scenarios where Python Semantic Release successfully tags a release and publishes to GitHub Releases, but network or container registry timeouts interrupt image build or promotion:
+In rare scenarios where Release Please successfully tags a release and publishes to GitHub Releases, but network or container registry timeouts interrupt image build or promotion:
 
 1. **Do not create a duplicate version or re-tag manually.**
 2. Navigate to Actions -> **Retry Publish** workflow (`.github/workflows/retry-publish.yml`).
 3. Click **Run workflow**, enter the existing verified tag (e.g. `v0.3.0`), and submit.
 4. The workflow verifies the tag format, matching `pyproject.toml` version, and checked-out tag commit, builds the staging image from that exact commit, scans both architectures with Trivy, and repairs safe aliases without bumping version numbers.
 5. Recovery never changes a version tag to a different digest. It advances floating aliases only when their recorded image version is not newer than the requested release; missing or unparseable version metadata stops recovery. Normal release promotion and recovery share one concurrency group to prevent alias races.
+6. If only the standalone binaries or the Homebrew cask failed, run **Build and Release Standalone Binaries** (`.github/workflows/binaries.yml`) manually with the same tag.
 
 For a rollback, redeploy a previously verified `repository@sha256:<verified-digest>` reference. This changes the deployed image only; it does not publish a release or move registry aliases.
 
@@ -103,3 +113,13 @@ Before merging any change to `main` or tagging production versions, the full sui
   - Fail-closed Trivy container vulnerability scanner
   - Immutable SHA256 digest promotion without floating-tag race conditions
 
+## 6. Release Secrets and Repository Settings
+
+| Secret | Used by | Required access |
+|--------|---------|-----------------|
+| `RELEASE_PLEASE_TOKEN` | `release.yml` (Release Please and auto-merge) | Personal access token with write access to this repository's contents and pull requests |
+| `HOMEBREW_TAP_TOKEN` | `binaries.yml` (Homebrew cask update) | Personal access token with write access to the contents of `Diaszano/homebrew-tap` |
+
+A personal access token is used for releases because pull requests and releases created with `GITHUB_TOKEN` do not trigger other workflows. With the default token, CI would never run on the release PR (its required checks would stay pending) and `binaries.yml` would not start when the release is published.
+
+The pipeline relies on **Allow auto-merge** being enabled and on the `main` ruleset requiring the CI checks. Nothing pushes directly to `main`, so no ruleset bypass is needed. The release PR uses the branch `release-please--branches--main`, which `scripts/ci/check_pr_metadata.py` accepts.

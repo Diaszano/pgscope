@@ -2,19 +2,23 @@ name: Release
 
 on:
   workflow_call:
+    secrets:
+      RELEASE_PLEASE_TOKEN:
+        description: "PAT that opens the release PR and creates the tag and GitHub Release, so downstream workflows run"
+        required: true
     outputs:
       released:
-        description: "True if a new semantic release was published"
-        value: ${{ jobs.semantic-release.outputs.released }}
+        description: "True if a new release was published"
+        value: ${{ jobs.release-please.outputs.released }}
       tag:
         description: "New release tag (e.g., v0.3.0)"
-        value: ${{ jobs.semantic-release.outputs.tag }}
+        value: ${{ jobs.release-please.outputs.tag }}
       release_sha:
         description: "Exact git commit SHA published for release"
-        value: ${{ jobs.semantic-release.outputs.release_sha }}
+        value: ${{ jobs.release-please.outputs.release_sha }}
       version:
         description: "Clean semantic version string (e.g., 0.3.0)"
-        value: ${{ jobs.semantic-release.outputs.version }}
+        value: ${{ jobs.release-please.outputs.version }}
 
 concurrency:
   group: image-alias-promotion
@@ -24,21 +28,57 @@ permissions:
   contents: read
 
 jobs:
-  semantic-release:
-    name: Semantic Release
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    # Only the PAT writes to the repository; the job token stays read-only.
+    permissions:
+      contents: read
+    outputs:
+      released: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      release_sha: ${{ steps.release.outputs.sha }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      # Pushes to main either update the open release PR or, when that PR was merged,
+      # create the vX.Y.Z tag and GitHub Release. A PAT is required: events created by
+      # GITHUB_TOKEN do not trigger CI on the release PR or the binaries workflow.
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Enable auto-merge on the release pull request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=$(gh pr list --head release-please--branches--main --state open --json number --jq '.[0].number // empty')
+          if [ -z "${PR_NUMBER}" ]; then
+            echo "No open release pull request."
+            exit 0
+          fi
+
+          echo "Enabling auto-merge for release PR #${PR_NUMBER}"
+          gh pr merge "${PR_NUMBER}" --auto --squash
+
+  publish-dist:
+    name: Attach Distributions to Release
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      released: ${{ steps.psr.outputs.released }}
-      tag: ${{ steps.psr.outputs.tag }}
-      release_sha: ${{ steps.psr.outputs.release_sha }}
-      version: ${{ steps.psr.outputs.version }}
     steps:
-      - name: Checkout repository
+      - name: Checkout release commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          ref: ${{ needs.release-please.outputs.release_sha }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
@@ -47,54 +87,21 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.12"
+        run: uv python install 3.12
 
-      - name: Run Python Semantic Release
-        id: psr
+      - name: Build wheel and sdist
+        run: bash scripts/release/build.sh
+
+      - name: Upload distributions to the GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          # Inspect version before PSR execution
-          OLD_VERSION=$(uv run python -c "import tomllib; print(tomllib.loads(open('pyproject.toml', 'rb').read().decode())['project']['version'])")
-          echo "Current project version: ${OLD_VERSION}"
-
-          # `version --print` returns the current version when there is no release.
-          NEXT_VERSION=$(uvx python-semantic-release==10.7.0 version --print)
-
-          if [ "${NEXT_VERSION}" = "${OLD_VERSION}" ]; then
-            echo "No version bump needed."
-            echo "released=false" >> "$GITHUB_OUTPUT"
-            echo "tag=" >> "$GITHUB_OUTPUT"
-            echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-            echo "version=${OLD_VERSION}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "Publishing release for version v${NEXT_VERSION}..."
-          uvx python-semantic-release==10.7.0 version
-
-          NEW_VERSION=$(uv run python -c "import tomllib; print(tomllib.loads(open('pyproject.toml', 'rb').read().decode())['project']['version'])")
-          if [ "${NEW_VERSION}" != "${NEXT_VERSION}" ]; then
-            echo "Semantic Release stamped ${NEW_VERSION}, expected ${NEXT_VERSION}." >&2
-            exit 1
-          fi
-
-          uvx python-semantic-release==10.7.0 publish --tag "v${NEW_VERSION}"
-
-          RELEASE_SHA=$(git rev-parse HEAD)
-          echo "released=true" >> "$GITHUB_OUTPUT"
-          echo "tag=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "release_sha=${RELEASE_SHA}" >> "$GITHUB_OUTPUT"
-          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag }}
+        run: gh release upload "${RELEASE_TAG}" dist/*.whl dist/*.tar.gz --clobber
 
   build-image:
     name: Build & Stage Multiarch GHCR Image
-    needs: semantic-release
-    if: needs.semantic-release.outputs.released == 'true'
+    needs: release-please
+    if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -105,7 +112,7 @@ jobs:
       - name: Checkout release commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.semantic-release.outputs.release_sha }}
+          ref: ${{ needs.release-please.outputs.release_sha }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
@@ -127,17 +134,17 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/diaszano/pgscope:sha-${{ needs.semantic-release.outputs.release_sha }}
+          tags: ghcr.io/diaszano/pgscope:sha-${{ needs.release-please.outputs.release_sha }}
           build-args: |
-            REVISION=${{ needs.semantic-release.outputs.release_sha }}
-            VERSION=${{ needs.semantic-release.outputs.version }}
+            REVISION=${{ needs.release-please.outputs.release_sha }}
+            VERSION=${{ needs.release-please.outputs.version }}
           provenance: true
           sbom: true
 
   promote-image:
     name: Promote Release GHCR Aliases
-    needs: [semantic-release, build-image]
-    if: needs.semantic-release.outputs.released == 'true'
+    needs: [release-please, build-image]
+    if: needs.release-please.outputs.released == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -146,7 +153,7 @@ jobs:
       - name: Checkout release commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.semantic-release.outputs.release_sha }}
+          ref: ${{ needs.release-please.outputs.release_sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -172,6 +179,6 @@ jobs:
       - name: Promote image to stable tags
         env:
           IMAGE_DIGEST: ${{ needs.build-image.outputs.image_digest }}
-          IMAGE_TAG: ${{ needs.semantic-release.outputs.tag }}
+          IMAGE_TAG: ${{ needs.release-please.outputs.tag }}
         run: |
           bash scripts/ci/promote_image.sh "ghcr.io/diaszano/pgscope" "$IMAGE_DIGEST" "$IMAGE_TAG"

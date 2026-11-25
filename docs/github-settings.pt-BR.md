@@ -23,17 +23,20 @@ Esta é uma configuração proposta; ela não foi aplicada. As observações rem
 - Exija a resolução de conversas e branches atualizadas para o merge. Bloqueie force pushes e a exclusão da `main`.
 - Exija os contextos de job de CI listados acima somente depois de confirmar seus nomes de check exatos a partir de uma execução bem-sucedida. As integrações com PostgreSQL 16 e 17 são obrigatórias; o PostgreSQL 18 continua experimental. **Não aplique este conjunto de checks ainda:** o `Static Type Analysis` atualmente falha com 292 erros do Pyright, e o handoff de release depende desse job. Resolva os erros de tipo antes de habilitar este ruleset, para que ele não bloqueie merges e entregas permanentemente.
 
-### Bot de release e compatibilidade com rulesets
+### PR de release e compatibilidade com rulesets
 
-O workflow de release usa o `GITHUB_TOKEN` fornecido pelo repositório com `contents: write` para criar o commit/tag do semantic release. A configuração de Actions que permite que workflows criem e aprovem pull requests pode permanecer desabilitada; este workflow faz push direto do commit de release e não abre um PR.
+O workflow de release não faz push na `main`. O Release Please abre um pull request de release com o secret `RELEASE_PLEASE_TOKEN` (um personal access token com escrita em contents e pull requests), e o auto-merge o conclui assim que os checks obrigatórios passam. Uma regra na `main` que exija que toda atualização venha por um pull request, portanto, não precisa de nenhuma entrada de bypass. A configuração de Actions que permite que workflows criem e aprovem pull requests pode continuar desabilitada, porque é o token, e não o `GITHUB_TOKEN`, que cria o PR.
 
-Uma regra na `main` que exija que toda atualização venha por um PR pode bloquear esse push. Os rulesets do GitHub suportam entradas de bypass para GitHub Apps elegíveis, mas o repositório não verificou se o seu app interno do GitHub Actions pode ser selecionado e pode ignorar essa regra específica. Antes de aplicar a regra de PR, verifique essa opção nas configurações do repositório ou execute uma verificação controlada da automação de release. Não use um padrão de mensagem de commit como bypass: `[skip ci]` afeta apenas o disparo de workflows e não concede permissão no ruleset. Não crie uma nova credencial como parte desta proposta.
+Usa-se um personal access token porque pull requests e releases criados com o `GITHUB_TOKEN` não disparam workflows: o CI não rodaria no PR de release e o `binaries.yml` não iniciaria quando o release fosse publicado.
 
-Se o app interno não puder receber um bypass com escopo restrito, mantenha a exigência de PR em modo Evaluate até que o fluxo de release seja alterado para publicar a partir do merge de um PR, sem push direto. Não habilite um bypass amplo para papéis humanos como substituto do acesso do bot.
+- Mantenha **Allow auto-merge** habilitado.
+- O PR de release usa a branch `release-please--branches--main` e o título `chore(release): X.Y.Z`; o `scripts/ci/check_pr_metadata.py` aceita exatamente essa branch.
+- `HOMEBREW_TAP_TOKEN` é um personal access token com permissão de escrita em contents de `Diaszano/homebrew-tap`.
+- Não habilite um bypass amplo para papéis humanos como substituto do fluxo de pull request.
 
 ### Tags de release e GHCR
 
-- Adicione um ruleset de tags para `v*` que impeça atualizações e exclusões após a criação. A automação de release precisa de permissão para criar tags; confirme que o ruleset escolhido não impede o workflow de semantic release de criá-las.
+- Adicione um ruleset de tags para `v*` que impeça atualizações e exclusões após a criação. A automação de release precisa de permissão para criar tags; confirme que o ruleset escolhido não impede o workflow de Release Please de criá-las.
 - Verifique se `ghcr.io/diaszano/pgscope` existe, confirme a visibilidade pretendida e conceda ao repositório o acesso de Actions necessário para as escritas de pacote com o `GITHUB_TOKEN`. Registre as configurações de pacote resultantes; elas continuam não verificadas hoje.
 - Mantenha os padrões de Actions em todo o repositório como somente leitura. Os workflows declaram `contents: write` ou `packages: write` restritos por job, apenas onde o trabalho de release exige. Nenhuma permissão `id-token: write` é usada.
 

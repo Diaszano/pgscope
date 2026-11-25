@@ -37,4 +37,4 @@ nix-claude-desktop:
   NIXPKGS_ALLOW_UNFREE=1 nix run "github:k3d3/claude-desktop-linux-flake#claude-desktop-with-fhs" --impure
 
 release-preview:
-  uv tool run --from python-semantic-release==10.7.0 semantic-release version --print --noop
+  gh pr list --head release-please--branches--main --json number,title,url

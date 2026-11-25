@@ -23,17 +23,20 @@ This is a proposed configuration; it has not been applied. Remote observations b
 - Require conversation resolution and up-to-date branches for merging. Block force pushes and deletion of `main`.
 - Require the CI job contexts listed above only after confirming their exact check names from a successful run. Both PostgreSQL 16 and 17 integrations are required; PostgreSQL 18 remains experimental. **Do not enforce this check set yet:** `Static Type Analysis` currently fails with 292 Pyright errors, and the release handoff depends on that job. Resolve the type errors before enabling this ruleset so it does not permanently block merges and delivery.
 
-### Release bot and ruleset compatibility
+### Release PR and ruleset compatibility
 
-The release workflow uses the repository-provided `GITHUB_TOKEN` with `contents: write` to create the semantic release commit/tag. The Actions setting that lets workflows create and approve pull requests can remain disabled; this workflow pushes the release commit directly and does not open a PR.
+The release workflow does not push to `main`. Release Please opens a release pull request with the `RELEASE_PLEASE_TOKEN` secret (a personal access token that can write contents and pull requests), and auto-merge completes it once the required checks pass. A `main` rule requiring every update to come through a pull request therefore needs no bypass entry. The Actions setting that lets workflows create and approve pull requests can remain disabled because the token, not `GITHUB_TOKEN`, creates the PR.
 
-A `main` rule requiring every update to come through a PR can block that push. GitHub rulesets support bypass entries for eligible GitHub Apps, but the repository has not verified that its built-in GitHub Actions app can be selected and can bypass this exact rule. Before enforcing the PR rule, verify that option in repository settings or run a controlled release-automation check. Do not use a commit-message pattern as a bypass: `[skip ci]` only affects workflow triggering and does not grant ruleset permission. Do not create a new credential as part of this proposal.
+A personal access token is used because pull requests and releases created with `GITHUB_TOKEN` do not trigger workflows: CI would not run on the release PR, and `binaries.yml` would not start when the release is published.
 
-If the built-in app cannot be granted a narrowly scoped bypass, keep the PR requirement in Evaluate mode until the release flow is changed to publish from a PR merge without a direct push. Do not enable a broad human-role bypass as a substitute for bot access.
+- Keep **Allow auto-merge** enabled.
+- The release PR uses the branch `release-please--branches--main` and the title `chore(release): X.Y.Z`; `scripts/ci/check_pr_metadata.py` accepts that exact branch.
+- `HOMEBREW_TAP_TOKEN` is a personal access token with write access to the contents of `Diaszano/homebrew-tap`.
+- Do not enable a broad human-role bypass as a substitute for the pull request flow.
 
 ### Release tags and GHCR
 
-- Add a tag ruleset for `v*` that prevents updates and deletions after creation. The release automation needs permission to create tags; confirm the selected ruleset does not prevent the semantic release workflow from creating them.
+- Add a tag ruleset for `v*` that prevents updates and deletions after creation. The release automation needs permission to create tags; confirm the selected ruleset does not prevent the Release Please workflow from creating them.
 - Verify that `ghcr.io/diaszano/pgscope` exists, confirm intended visibility, and grant the repository Actions access needed for `GITHUB_TOKEN` package writes. Record the resulting package settings; they remain unverified today.
 - Keep repository-wide Actions defaults read-only. The workflows declare narrow per-job `contents: write` or `packages: write` only where release work requires them. No `id-token: write` permission is used.
 

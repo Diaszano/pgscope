@@ -23,6 +23,7 @@ from scripts.ci.check_pr_metadata import validate_pr
         ("ci(deps): bump actions/checkout from 4 to 5", "ci/github-actions/checkout-v5", "dependabot[bot]"),
         ("build(deps): bump python from 3.12 to 3.13", "build/docker/python-3.13", "dependabot[bot]"),
         ("refactor!: redesign engine architecture", "refactor/engine", "Diaszano"),
+        ("chore(release): 0.6.1", "release-please--branches--main", "Diaszano"),
     ],
 )
 def test_validate_pr_accepts_valid_metadata(title: str, head_ref: str, actor: str) -> None:
@@ -91,3 +92,8 @@ def test_pr_and_issue_templates_exist() -> None:
 
     pr_content = pr_template.read_text(encoding="utf-8")
     assert "Conventional Commit" in pr_content or "conventional commits" in pr_content.lower()
+
+
+def test_validate_pr_rejects_other_release_please_branches() -> None:
+    errors = validate_pr(title="chore(release): 1.0.0", head_ref="release-please--branches--other", actor="Diaszano")
+    assert any("branch" in error.lower() for error in errors)

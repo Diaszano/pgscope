@@ -258,4 +258,4 @@ def test_release_workflow_includes_promotion_job() -> None:
     steps_text = yaml.dump(job.get("steps", []))
     assert "promote_image.sh" in steps_text
     checkout = next(step for step in job["steps"] if step.get("name") == "Checkout release commit")
-    assert checkout["with"]["ref"] == "${{ needs.semantic-release.outputs.release_sha }}"
+    assert checkout["with"]["ref"] == "${{ needs.release-please.outputs.release_sha }}"

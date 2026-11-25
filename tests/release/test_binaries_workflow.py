@@ -59,3 +59,10 @@ def test_binaries_workflow_has_update_tap_job() -> None:
     steps = update_job.get("steps", [])
     steps_text = yaml.dump(steps)
     assert "update_homebrew_tap.py" in steps_text
+
+
+def test_binaries_workflow_uses_homebrew_tap_token() -> None:
+    wf = _load_workflow()
+    step = next(step for step in wf["jobs"]["update-tap"]["steps"] if step.get("name") == "Generate and Update Homebrew Cask")
+
+    assert step["env"]["HOMEBREW_TAP_TOKEN"] == "${{ secrets.HOMEBREW_TAP_TOKEN }}"

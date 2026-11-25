@@ -60,10 +60,10 @@ def test_ghcr_primary_image_reference() -> None:
     assert "ghcr.io/diaszano/pgscope" in content
 
 
-def test_release_checklist_documents_ghcr_and_psr() -> None:
+def test_release_checklist_documents_ghcr_and_release_please() -> None:
     root = Path(__file__).resolve().parents[2]
     checklist = (root / "docs" / "release-checklist.md").read_text(encoding="utf-8")
 
     assert "GHCR" in checklist
-    assert "Semantic Release" in checklist or "PSR" in checklist
+    assert "Release Please" in checklist
     assert "ghcr.io/diaszano/pgscope" in checklist
