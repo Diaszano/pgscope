@@ -129,6 +129,7 @@ async def inspect_pageable_select(sql: str, mode: Literal["offset", "keyset"], s
     if not projected:
         raise SQLValidationError("Pagination key must be projected")
 
+    assert relation.relname is not None  # pglast 8.9 types relname as optional
     relation_name = Identifier(*([relation.schemaname] if relation.schemaname else []), relation.relname).as_string()
     query = SafeSqlDriver.param_sql_to_query(
         """SELECT EXISTS (
