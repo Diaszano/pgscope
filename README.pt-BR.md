@@ -2,8 +2,6 @@
 
 <div align="center">
 
-<img src="assets/pgscope.png" alt="pgscope Logo" width="600"/>
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Versão do PyPI upstream](https://img.shields.io/pypi/v/pgscope)](https://pypi.org/project/pgscope/)
 [![Discord](https://img.shields.io/discord/1336769798603931789?label=Discord)](https://discord.gg/4BEHC7ZM)
@@ -57,7 +55,7 @@ O que fizemos:
 - 🛠️ Corrigimos uma página quebrada - pedindo ao agente que explorasse os dados, corrigisse consultas e adicionasse conteúdo relacionado.
 - 🧠 Melhoramos os filmes mais bem avaliados - explorando os dados e corrigindo a consulta do ORM para exibir resultados mais relevantes.
 
-Veja o vídeo abaixo ou leia o [passo a passo](examples/movie-app.md).
+Veja o vídeo abaixo.
 
 https://github.com/user-attachments/assets/24e05745-65e9-4998-b877-a368f1eadc13
 
