@@ -129,6 +129,6 @@ The pipeline relies on **Allow auto-merge** being enabled and on the `main` rule
 | Role | Version | Defined in |
 |------|---------|------------|
 | Minimum supported (floor) | 3.12 | `requires-python`, Ruff `target-version`, Pyright `pythonVersion`; tested by the `unit-floor` CI job |
-| Built, shipped and used for development | 3.13 | `mise.toml` (`python_version`), the CI workflows, the `Dockerfile` and the standalone binaries |
+| Built, shipped and used for development | 3.14 | `mise.toml` (`python_version`), the CI workflows, the `Dockerfile` and the standalone binaries |
 
 `tests/release/test_python_versions.py` fails if these drift apart. To move to another Python version, change `python_version` in `mise.toml`, the `uv python install` lines in the workflows and the `Dockerfile` image tags together.

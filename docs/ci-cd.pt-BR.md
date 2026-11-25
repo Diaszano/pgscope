@@ -129,6 +129,6 @@ O pipeline depende de **Allow auto-merge** estar habilitado e do ruleset da `mai
 | Papel | Versão | Definida em |
 |-------|--------|-------------|
 | Mínima suportada (piso) | 3.12 | `requires-python`, `target-version` do Ruff e `pythonVersion` do Pyright; testada pelo job de CI `unit-floor` |
-| Construída, entregue e usada no desenvolvimento | 3.13 | `mise.toml` (`python_version`), os workflows de CI, o `Dockerfile` e os binários standalone |
+| Construída, entregue e usada no desenvolvimento | 3.14 | `mise.toml` (`python_version`), os workflows de CI, o `Dockerfile` e os binários standalone |
 
 O `tests/release/test_python_versions.py` falha se esses valores divergirem. Para migrar para outra versão do Python, altere juntos o `python_version` em `mise.toml`, as linhas `uv python install` dos workflows e as tags de imagem do `Dockerfile`.

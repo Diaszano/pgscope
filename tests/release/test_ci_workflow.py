@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -74,11 +75,14 @@ def test_ci_revalidates_edited_pr_title() -> None:
     assert "GITHUB_ACTOR" not in env
 
 
-def test_ci_uses_a_uv_version_that_reads_the_checked_lockfile() -> None:
+def test_workflows_use_the_uv_version_pinned_in_mise() -> None:
     root = Path(__file__).resolve().parents[2]
-    content = yaml.load((root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+    mise_uv = tomllib.loads((root / "mise.toml").read_text(encoding="utf-8"))["tools"]["uv"]
 
-    workflows = [content, yaml.load((root / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)]
+    workflows = [
+        yaml.load((root / ".github" / "workflows" / name).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+        for name in ("ci.yml", "release.yml", "binaries.yml")
+    ]
     versions = {
         step["with"].get("version")
         for workflow in workflows
@@ -86,4 +90,4 @@ def test_ci_uses_a_uv_version_that_reads_the_checked_lockfile() -> None:
         for step in job.get("steps", [])
         if step.get("uses", "").startswith("astral-sh/setup-uv@")
     }
-    assert versions == {"0.13.7"}
+    assert versions == {mise_uv}
