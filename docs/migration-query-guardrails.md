@@ -1,5 +1,7 @@
 # Query Guardrails & Cursor Pagination Migration Guide
 
+> **English** | [Português (Brasil)](migration-query-guardrails.pt-BR.md)
+
 This guide describes how to migrate to bounded query budgets and cursor pagination in **pgscope**, while maintaining compatibility with legacy MCP clients.
 
 ## 1. Rollout and Backward Compatibility

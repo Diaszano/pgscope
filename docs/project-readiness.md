@@ -1,5 +1,7 @@
 # Project readiness baseline
 
+> **English** | [Português (Brasil)](project-readiness.pt-BR.md)
+
 Baseline captured on 2026-11-03 from local commit `cdb81019c61a2cb1f1590e4b42af79b0ff8b95ee` on `docs/project-readiness-implementation`. This is a point-in-time check; the repository's remote `main` was `764c0a4e59639e43c1a502e287d227631d131bdc` when inspected.
 
 ## Evidence matrix

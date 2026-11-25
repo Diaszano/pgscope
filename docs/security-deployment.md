@@ -1,5 +1,7 @@
 # Security and Production Deployment Guide
 
+> **English** | [Português (Brasil)](security-deployment.pt-BR.md)
+
 This document outlines the security architecture and deployment requirements for the **pgscope** server.
 
 ## 1. Least-Privilege Database Roles

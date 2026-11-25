@@ -1,4 +1,6 @@
-# PostgreSQL MCP Release Checklist & Rollback Procedure
+# pgscope Release Checklist & Rollback Procedure
+
+> **English** | [Português (Brasil)](release-checklist.pt-BR.md)
 
 Base Version: (evaluated dynamically from `pyproject.toml`)
 Primary Image Registry: `ghcr.io/diaszano/pgscope`

@@ -1,5 +1,7 @@
 # Security Policy
 
+> **English** | [Português (Brasil)](SECURITY.pt-BR.md)
+
 `pgscope` takes security seriously. This document outlines our vulnerability reporting process, supply-chain security standards, and exception policies.
 
 ---

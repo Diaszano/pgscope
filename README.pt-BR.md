@@ -27,7 +27,7 @@
 
 **pgscope** é um servidor open source de Model Context Protocol (MCP) criado para apoiar você e seus agentes de IA durante **todo o processo de desenvolvimento**, desde a codificação inicial, passando por testes e implantação, até o ajuste e a manutenção em produção.
 
-Este repositório é o fork Diaszano de [crystaldba/postgres-mcp](https://github.com/crystaldba/postgres-mcp). Os indicadores do PyPI e de contribuidores acima são do projeto upstream; eles não identificam uma publicação deste fork.
+O pgscope é um fork de [crystaldba/postgres-mcp](https://github.com/crystaldba/postgres-mcp), projeto licenciado sob MIT e criado pela [Crystal DBA](https://www.crystaldba.ai). Este fork é mantido por Diaszano e acrescenta descoberta de múltiplos bancos de dados, guardrails de consulta, paginação de consultas e transportes HTTP autenticados. Os indicadores do PyPI e de contribuidores acima são do projeto upstream; eles não identificam uma publicação deste fork. Veja [NOTICE.md](NOTICE.md) para a atribuição ao projeto original.
 
 O pgscope faz muito mais do que encapsular uma conexão com o banco de dados.
 
@@ -581,15 +581,15 @@ Nossos testes atualmente se concentram no Postgres 15, 16 e 17.
 Planejamos oferecer suporte às versões 13 a 17 do Postgres.
 
 *Quem criou este projeto?*
-Este projeto é criado e mantido pela [Crystal DBA](https://www.crystaldba.ai).
+O pgscope é um fork de [postgres-mcp](https://github.com/crystaldba/postgres-mcp), criado pela [Crystal DBA](https://www.crystaldba.ai). Este fork é mantido por Diaszano. Veja [NOTICE.md](NOTICE.md).
 
 ## Roadmap
 
 *A definir*
 
 Você e as suas necessidades são um fator decisivo para o que construímos.
-Conte-nos o que você quer ver abrindo uma [issue](https://github.com/crystaldba/postgres-mcp/issues) ou um [pull request](https://github.com/crystaldba/postgres-mcp/pulls).
-Você também pode falar conosco no [Discord](https://discord.gg/4BEHC7ZM).
+Conte-nos o que você quer ver abrindo uma [issue](https://github.com/Diaszano/pgscope/issues) ou um [pull request](https://github.com/Diaszano/pgscope/pulls).
+Dúvidas sobre o projeto upstream também podem ir para o [Discord](https://discord.gg/4BEHC7ZM) dele.
 
 <a id="technical-notes"></a>
 ## Notas técnicas
@@ -611,7 +611,7 @@ A geração de sugestões de índices no pgscope ocorre em várias etapas:
 
     Uma consulta é candidata ao ajuste de índices se for uma das que mais consomem recursos, seja por execução ou em conjunto.
     No momento, usamos o tempo de execução como substituto do consumo cumulativo de recursos, mas também pode fazer sentido olhar recursos específicos, por exemplo, o número de blocos acessados ou o número de blocos lidos do disco.
-    A ferramenta `analyze_query_workload` foca em consultas lentas, usando o tempo médio por execução com limites para a contagem de execuções e para o tempo médio de execução.
+    A ferramenta `analyze_workload_indexes` foca em consultas lentas, usando o tempo médio por execução com limites para a contagem de execuções e para o tempo médio de execução.
     Os agentes também podem chamar `get_top_queries`, que aceita um parâmetro para tempo médio ou total de execução, e então passar essas consultas para `analyze_query_indexes` a fim de obter recomendações de índices.
 
     Sistemas sofisticados de ajuste de índices usam "compressão de carga de trabalho" para produzir um subconjunto representativo de consultas que reflete as características da carga de trabalho como um todo, reduzindo o problema para os algoritmos seguintes.

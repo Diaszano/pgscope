@@ -26,7 +26,7 @@
 
 **pgscope** is an open source Model Context Protocol (MCP) server built to support you and your AI agents throughout the **entire development process**—from initial coding, through testing and deployment, and to production tuning and maintenance.
 
-This repository is Diaszano's fork of [crystaldba/postgres-mcp](https://github.com/crystaldba/postgres-mcp). The PyPI and contributor badges above refer to that upstream project; they do not identify a release of this fork.
+pgscope is a fork of [crystaldba/postgres-mcp](https://github.com/crystaldba/postgres-mcp), the MIT-licensed project created by [Crystal DBA](https://www.crystaldba.ai). This fork is maintained by Diaszano and adds multi-database discovery, query guardrails, query pagination, and authenticated HTTP transports. The PyPI and contributor badges above refer to the upstream project; they do not identify a release of this fork. See [NOTICE.md](NOTICE.md) for upstream attribution.
 
 pgscope does much more than wrap a database connection.
 
@@ -571,15 +571,15 @@ Our testing presently focuses on Postgres 15, 16, and 17.
 We plan to support Postgres versions 13 through 17.
 
 *Who created this project?*
-This project is created and maintained by [Crystal DBA](https://www.crystaldba.ai).
+pgscope is a fork of [postgres-mcp](https://github.com/crystaldba/postgres-mcp), created by [Crystal DBA](https://www.crystaldba.ai). This fork is maintained by Diaszano. See [NOTICE.md](NOTICE.md).
 
 ## Roadmap
 
 *TBD*
 
 You and your needs are a critical driver for what we build.
-Tell us what you want to see by opening an [issue](https://github.com/crystaldba/postgres-mcp/issues) or a [pull request](https://github.com/crystaldba/postgres-mcp/pulls).
-You can also contact us on [Discord](https://discord.gg/4BEHC7ZM).
+Tell us what you want to see by opening an [issue](https://github.com/Diaszano/pgscope/issues) or a [pull request](https://github.com/Diaszano/pgscope/pulls).
+Questions about the upstream project can also go to its [Discord](https://discord.gg/4BEHC7ZM).
 
 ## Technical Notes
 
@@ -600,7 +600,7 @@ Generating suggested indexes in pgscope proceeds in several stages:
 
     A query is a candidate for index tuning if it is a top resource consumer, either on a per-execution basis or in aggregate.
     At present, we use execution time as a proxy for cumulative resource consumption, but it may also make sense to look at specifics resources, e.g., the number of blocks accessed or the number of blocks read from disk.
-    The `analyze_query_workload` tool focuses on slow queries, using the mean time per execution with thresholds for execution count and mean execution time.
+    The `analyze_workload_indexes` tool focuses on slow queries, using the mean time per execution with thresholds for execution count and mean execution time.
     Agents may also call `get_top_queries`, which accepts a parameter for mean vs. total execution time, then pass these queries `analyze_query_indexes` to get index recommendations.
 
     Sophisticated index tuning systems use "workload compression" to produce a representative subset of queries that reflects the characteristics of the workload as a whole, reducing the problem for downstream algorithms.

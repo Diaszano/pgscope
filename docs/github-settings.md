@@ -1,5 +1,7 @@
 # GitHub Repository Settings Proposal
 
+> **English** | [Português (Brasil)](github-settings.pt-BR.md)
+
 This is a proposed configuration; it has not been applied. Remote observations below were collected on 2026-11-03 and are summarized in [project readiness](project-readiness.md).
 
 ## Current remote evidence
