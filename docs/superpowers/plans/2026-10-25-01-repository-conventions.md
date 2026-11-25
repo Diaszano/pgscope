@@ -38,9 +38,10 @@ Five expected edge conditions; their owning tasks below must include the named r
 
 ```python
 from pathlib import Path
-ignore = Path('.dockerignore').read_text()
-assert '.git' in ignore and '.venv' in ignore and 'dist' in ignore
-assert 'uv.lock' not in ignore and 'pyproject.toml' not in ignore
+
+ignore = Path(".dockerignore").read_text()
+assert ".git" in ignore and ".venv" in ignore and "dist" in ignore
+assert "uv.lock" not in ignore and "pyproject.toml" not in ignore
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_repository_conventions.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Create minimal `.editorconfig` with UTF-8/LF, Python 4-space indent, Markdown whitespace exception and Make/just shell preservation; configure `.gitattributes` text eol normalization and `.dockerignore` with targeted exclusions.
@@ -63,8 +64,9 @@ assert 'uv.lock' not in ignore and 'pyproject.toml' not in ignore
 
 ```python
 from scripts.ci.check_pr_metadata import validate_pr
-assert validate_pr('feat(api)!: add policy', 'feature/policy', 'Diaszano') == []
-assert validate_pr('update things', 'feature/policy', 'Diaszano')
+
+assert validate_pr("feat(api)!: add policy", "feature/policy", "Diaszano") == []
+assert validate_pr("update things", "feature/policy", "Diaszano")
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_pr_metadata.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Create pure Python validation from approved Conventional Commit title pattern (`feat|fix|docs|test|ci|build|perf|refactor|chore|revert` plus scope and `!`) and Conventional Branch category pattern. `--title`, `--head-ref`, `--actor` are CLI args, but in workflow prefer `env:` not shell string interpolation.
@@ -87,9 +89,10 @@ assert validate_pr('update things', 'feature/policy', 'Diaszano')
 
 ```python
 from pathlib import Path
-owners = Path('.github/CODEOWNERS').read_text()
-assert '.github/workflows/' in owners and '@Diaszano' in owners
-assert 'Crystal Corp.' in Path('LICENSE').read_text()
+
+owners = Path(".github/CODEOWNERS").read_text()
+assert ".github/workflows/" in owners and "@Diaszano" in owners
+assert "Crystal Corp." in Path("LICENSE").read_text()
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_repository_governance.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Write `.github/CODEOWNERS` assigning sensitive paths to `@Diaszano`; define English contribution, Conventional Commit, squash merge, branch naming and review checklist in CONTRIBUTING; preserve MIT copyright and upstream origin in NOTICE.
@@ -112,9 +115,10 @@ assert 'Crystal Corp.' in Path('LICENSE').read_text()
 ```python
 from pathlib import Path
 import yaml
-config = yaml.load(Path('.github/dependabot.yml').read_text(), Loader=yaml.BaseLoader)
-ecosystems = {item['package-ecosystem'] for item in config['updates']}
-assert {'uv', 'github-actions', 'docker'} <= ecosystems
+
+config = yaml.load(Path(".github/dependabot.yml").read_text(), Loader=yaml.BaseLoader)
+ecosystems = {item["package-ecosystem"] for item in config["updates"]}
+assert {"uv", "github-actions", "docker"} <= ecosystems
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_dependabot_config.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Configure `package-ecosystem: uv` (not pip), github-actions and docker weekly; tune groups and open-pull-requests-limit; require tests and human review for updates.

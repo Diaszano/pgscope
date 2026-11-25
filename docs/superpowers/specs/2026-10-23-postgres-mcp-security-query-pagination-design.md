@@ -130,8 +130,7 @@ async def execute_sql(
     timeout_seconds: int | None = None,
     page_size: int | None = None,
     pagination: Literal["none", "offset", "keyset"] = "none",
-) -> ResponseType:
-    ...
+) -> ResponseType: ...
 ```
 
 The specific MCP/Pydantic return type can be refined during implementation; the **public parameter names and semantics** above are the contract. `page_size` must be omitted in `none` mode. `max_rows` means the **maximum number of rows in the logical paginated request**, not the number of rows per page. With `pagination="none"`, it is the per-call row maximum.
@@ -197,8 +196,7 @@ The specific MCP/Pydantic return type can be refined during implementation; the 
 async def fetch_query_page(
     cursor: str,
     page_size: int | None = None,
-) -> ResponseType:
-    ...
+) -> ResponseType: ...
 ```
 
 - `fetch_query_page` **must not accept or change** SQL text, database name, pagination strategy, or hard limits.

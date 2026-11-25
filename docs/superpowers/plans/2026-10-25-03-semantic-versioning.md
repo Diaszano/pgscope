@@ -38,12 +38,13 @@ Five expected edge conditions; their owning tasks below must include the named r
 
 ```python
 import tomllib
-with open('pyproject.toml', 'rb') as f:
-    cfg = tomllib.load(f)['tool']['semantic_release']
-assert cfg['allow_zero_version'] is True
-assert cfg['major_on_zero'] is False
-assert cfg['tag_format'] == 'v{version}'
-assert cfg['commit_parser'] == 'conventional'
+
+with open("pyproject.toml", "rb") as f:
+    cfg = tomllib.load(f)["tool"]["semantic_release"]
+assert cfg["allow_zero_version"] is True
+assert cfg["major_on_zero"] is False
+assert cfg["tag_format"] == "v{version}"
+assert cfg["commit_parser"] == "conventional"
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_semantic_release_config.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Pin PSR version 10.7.0 in release installation/preview and configure `[tool.semantic_release]`, `[tool.semantic_release.branches.main]` (match regex `^main$`); document v0 breaking maps to next minor.
@@ -64,10 +65,12 @@ assert cfg['commit_parser'] == 'conventional'
 
 ```python
 from scripts.ci.validate_release import validate_release_tag
-validate_release_tag('v0.3.1', '0.3.1')
+
+validate_release_tag("v0.3.1", "0.3.1")
 import pytest
+
 with pytest.raises(ValueError):
-    validate_release_tag('v0.3.1rc1', '0.3.1')
+    validate_release_tag("v0.3.1rc1", "0.3.1")
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_semantic_version_calculation.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Create pure tag parser/metadata guard, add test fixture that invokes PSR in no-push/dry-run mode; never create GitHub releases or hit the network from test. If dry-run PSR CLI output varies, assert parsed reported version using official documented options.
@@ -90,9 +93,10 @@ with pytest.raises(ValueError):
 
 ```python
 from pathlib import Path
-script = Path('scripts/release/build.sh').read_text()
+
+script = Path("scripts/release/build.sh").read_text()
 assert 'uv lock --upgrade-package "$PACKAGE_NAME"' in script
-assert 'git add uv.lock' in script and 'uv build' in script
+assert "git add uv.lock" in script and "uv build" in script
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_release_metadata.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Use fail-fast shell, stage uv.lock after refresh, constrain root package upgrade and detect any unrelated resolved dependency churn; verify artifacts match stamped version; ensure `pglast==7.11` untouched.
@@ -115,8 +119,9 @@ assert 'git add uv.lock' in script and 'uv build' in script
 ```python
 import pytest
 from scripts.ci.validate_release import validate_release_baseline
+
 with pytest.raises(ValueError):
-    validate_release_baseline('0.3.0', ['v0.3.0', 'v0.3.0'])
+    validate_release_baseline("0.3.0", ["v0.3.0", "v0.3.0"])
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_release_bootstrap.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Document an owner-reviewed one-time bootstrap of reachable stable tags; determine last release from ancestry; no auto-rewrite; enable release only once preflight passes on a throwaway fork.

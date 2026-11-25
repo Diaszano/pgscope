@@ -38,9 +38,10 @@ Five expected edge conditions; their owning tasks below must include the named r
 
 ```python
 from pathlib import Path
-checklist = Path('docs/release-checklist.md').read_text()
-assert 'Release Version: `0.3.0`' not in checklist
-assert 'ghcr.io/diaszano/postgres-mcp' in Path('docs/ci-cd.md').read_text()
+
+checklist = Path("docs/release-checklist.md").read_text()
+assert "Release Version: `0.3.0`" not in checklist
+assert "ghcr.io/diaszano/postgres-mcp" in Path("docs/ci-cd.md").read_text()
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_release_docs.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Explain exact PR/main gates, release trigger examples, GHCR tag format, image digest verification, failures, PSR bootstrap, GHCR package visibility, maintainers’ responsibilities, first release decision and rollback.
@@ -62,9 +63,10 @@ assert 'ghcr.io/diaszano/postgres-mcp' in Path('docs/ci-cd.md').read_text()
 
 ```python
 from pathlib import Path
-settings = Path('docs/github-settings.md').read_text().lower()
-assert 'branch protection' in settings or 'ruleset' in settings
-assert 'github_token' in settings and 'tag' in settings
+
+settings = Path("docs/github-settings.md").read_text().lower()
+assert "branch protection" in settings or "ruleset" in settings
+assert "github_token" in settings and "tag" in settings
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_github_settings.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Document UI steps to require stable named checks, restrict pushes to main, protect `v*`, enforce squash/title policy, permit bot version bump narrowly (or GitHub App), choose `GITHUB_TOKEN` permissions, configure GHCR visibility/access; document override approval and rollback.
@@ -87,9 +89,10 @@ assert 'github_token' in settings and 'tag' in settings
 
 ```python
 from pathlib import Path
-readme = Path('README.md').read_text()
-assert 'ghcr.io/diaszano/postgres-mcp' in readme
-assert 'Crystal Corp.' in Path('LICENSE').read_text()
+
+readme = Path("README.md").read_text()
+assert "ghcr.io/diaszano/postgres-mcp" in readme
+assert "Crystal Corp." in Path("LICENSE").read_text()
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_repository_governance.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Change fork-specific install/pull commands, workflow badges and OCI source/vendor where appropriate; retain factual upstream credit and existing MIT LICENSE text; remove manual `just release` commands while preserving `lint`, `typecheck`, `release-smoke`, etc.
@@ -110,10 +113,11 @@ assert 'Crystal Corp.' in Path('LICENSE').read_text()
 
 ```python
 from pathlib import Path
-workflows = Path('.github/workflows')
-assert (workflows/'ci.yml').is_file()
-assert (workflows/'release.yml').is_file()
-assert not (workflows/'docker-build-dockerhub.yml').exists()
+
+workflows = Path(".github/workflows")
+assert (workflows / "ci.yml").is_file()
+assert (workflows / "release.yml").is_file()
+assert not (workflows / "docker-build-dockerhub.yml").exists()
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_smoke.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Run final `uv lock --check`, Ruff, Pyright, unit, release, performance, Docker-backed integration PG16/17, `uv build`, actionlint, shellcheck and security scan. Verify no unexpected pglast/runtime changes; create PR with checklist and await GitHub owner rule changes before activating release.

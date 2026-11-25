@@ -38,10 +38,11 @@ Five expected edge conditions; their owning tasks below must include the named r
 
 ```python
 from pathlib import Path
-release = Path('.github/workflows/release.yml').read_text()
-assert 'workflow_call' in release
-assert 'semantic-release' in release and 'GH_TOKEN' in release
-assert 'contents: write' in release
+
+release = Path(".github/workflows/release.yml").read_text()
+assert "workflow_call" in release
+assert "semantic-release" in release and "GH_TOKEN" in release
+assert "contents: write" in release
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_ci_release_gate.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Check out exactly triggering `main` SHA with full tags; reject moved/re-written upstream; run pinned PSR CLI (via uv), capture git commit/tag before and after, verify new tag points at actual HEAD and version metadata, call `semantic-release publish --tag <validated-tag>`, expose trusted outputs. `GITHUB_TOKEN` is not used as an event trigger. No release from workflow_dispatch on this job.
@@ -63,10 +64,11 @@ assert 'contents: write' in release
 
 ```python
 from pathlib import Path
-release = Path('.github/workflows/release.yml').read_text()
-assert 'linux/amd64,linux/arm64' in release
-assert 'provenance:' in release and 'sbom:' in release
-assert 'ghcr.io/diaszano/postgres-mcp' in release
+
+release = Path(".github/workflows/release.yml").read_text()
+assert "linux/amd64,linux/arm64" in release
+assert "provenance:" in release and "sbom:" in release
+assert "ghcr.io/diaszano/postgres-mcp" in release
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_ghcr_manifest.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Use docker/login-action via `GITHUB_TOKEN`, setup-buildx/setup-qemu, metadata-action plus build-push-action pinned SHAs; build exact version-tag commit for `linux/amd64,linux/arm64`, `provenance: true`, `sbom: true`; capture digest from build output; validate manifest with `buildx imagetools inspect`.
@@ -88,9 +90,10 @@ assert 'ghcr.io/diaszano/postgres-mcp' in release
 
 ```python
 from pathlib import Path
-promotion = Path('scripts/ci/promote_image.sh').read_text()
-assert 'imagetools' in promotion and 'sha256:' in promotion
-assert 'latest' in promotion
+
+promotion = Path("scripts/ci/promote_image.sh").read_text()
+assert "imagetools" in promotion and "sha256:" in promotion
+assert "latest" in promotion
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_image_promotion.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Use immutable staged manifest digest; run required Trivy scans for both architectures prior to any stable alias; use `buildx imagetools create --tag ... source@sha256` with version aliases before latest; validate final digest/aliases; fail nonzero if any check fails. No mutable build context or re-build during promotion.
@@ -112,9 +115,10 @@ assert 'latest' in promotion
 
 ```python
 from pathlib import Path
-recovery = Path('scripts/ci/validate_release_ref.py').read_text()
-assert 'tag' in recovery and 'version' in recovery
-assert 'release' in recovery
+
+recovery = Path("scripts/ci/validate_release_ref.py").read_text()
+assert "tag" in recovery and "version" in recovery
+assert "release" in recovery
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_publish_recovery.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Implement manual recovery isolated from automated versioning; validate tag via Git API commit ancestry, metadata, release existence and protected branch; recreate missing GHCR aliases from verified digest if available; no force tagging. Report partial GitHub Release success clearly in Actions summary and operator docs.
@@ -138,10 +142,11 @@ assert 'release' in recovery
 
 ```python
 from pathlib import Path
-workflows = Path('.github/workflows')
-assert not (workflows / 'docker-build-dockerhub.yml').exists()
-assert not (workflows / 'build.yml').exists()
-assert (workflows / 'ci.yml').is_file()
+
+workflows = Path(".github/workflows")
+assert not (workflows / "docker-build-dockerhub.yml").exists()
+assert not (workflows / "build.yml").exists()
+assert (workflows / "ci.yml").is_file()
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_ci_release_gate.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Preflight repository rulesets and GHCR package access. Exercise automatic patch/minor/no-op in throwaway fork, verify CI and traceable manifest digest, then remove older workflows and enable main publishing. DO NOT create real tags in upstream without owner-approved rollout.

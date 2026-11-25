@@ -39,9 +39,10 @@ Five expected edge conditions; their owning tasks below must include the named r
 ```python
 from pathlib import Path
 import yaml
-ci = yaml.load(Path('.github/workflows/ci.yml').read_text(), Loader=yaml.BaseLoader)
-assert 'pull_request' in ci['on']
-assert ci['on']['push']['branches'] == ['main']
+
+ci = yaml.load(Path(".github/workflows/ci.yml").read_text(), Loader=yaml.BaseLoader)
+assert "pull_request" in ci["on"]
+assert ci["on"]["push"]["branches"] == ["main"]
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_ci_workflow.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Create CI workflow; use checked-out SHA-pinned actions and `validate_pr` through safe environment variables; validate GitHub workflow YAML with actionlint and unit fixture. Do not delete old workflow yet.
@@ -63,9 +64,10 @@ assert ci['on']['push']['branches'] == ['main']
 
 ```python
 from pathlib import Path
-ci = Path('.github/workflows/ci.yml').read_text()
-assert 'uv lock --check' in ci and 'uv build' in ci
-assert 'ruff check .' in ci and 'pyright' in ci
+
+ci = Path(".github/workflows/ci.yml").read_text()
+assert "uv lock --check" in ci and "uv build" in ci
+assert "ruff check ." in ci and "pyright" in ci
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_release_metadata.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Wire `uv sync --locked --group dev`, Ruff, Pyright, pytest unit/release/performance, uv build and artifact metadata inspection. Supply check_version CLI with `--tag` optional; use GitHub Actions cache keyed by uv.lock.
@@ -88,9 +90,10 @@ assert 'ruff check .' in ci and 'pyright' in ci
 
 ```python
 from pathlib import Path
-script = Path('scripts/ci/build_hypopg_image.sh').read_text()
-assert 'set -euo pipefail' in script and '|| true' not in script
-assert 'hypopg' in script
+
+script = Path("scripts/ci/build_hypopg_image.sh").read_text()
+assert "set -euo pipefail" in script and "|| true" not in script
+assert "hypopg" in script
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_integration_gate.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Move inline Docker build to version-parameterized bash script, `set -euo pipefail`, assert `CREATE EXTENSION hypopg` succeeds and run true integration tests. Document PG18 optional until compatible base/image/extension is demonstrably available.
@@ -112,9 +115,10 @@ assert 'hypopg' in script
 
 ```python
 from pathlib import Path
-ci = Path('.github/workflows/ci.yml').read_text()
-assert 'refs/heads/main' in ci and 'workflow/release.yml' in ci
-assert 'needs:' in ci
+
+ci = Path(".github/workflows/ci.yml").read_text()
+assert "refs/heads/main" in ci and "workflow/release.yml" in ci
+assert "needs:" in ci
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_ci_release_gate.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Add release calling job to CI, only with required dependencies and least-privileged reusable workflow token scopes; stub must be safe no-op until Plan 05 enables delivery. Retain old workflows temporarily only if disabled from duplicate triggers.
