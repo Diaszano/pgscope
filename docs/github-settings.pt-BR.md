@@ -30,7 +30,7 @@ O workflow de release não faz push na `main`. O Release Please abre um pull req
 Usa-se um personal access token porque pull requests e releases criados com o `GITHUB_TOKEN` não disparam workflows: o CI não rodaria no PR de release e o `binaries.yml` não iniciaria quando o release fosse publicado.
 
 - Mantenha **Allow auto-merge** habilitado.
-- O PR de release usa a branch `release-please--branches--main` e o título `chore(release): X.Y.Z`; o `scripts/ci/check_pr_metadata.py` aceita exatamente essa branch.
+- O PR de release usa a branch `release-please--branches--main--components--pgscope` e o título `chore(release): X.Y.Z`; o `scripts/ci/check_pr_metadata.py` aceita exatamente essa branch.
 - `HOMEBREW_TAP_TOKEN` é um personal access token com permissão de escrita em contents de `Diaszano/homebrew-tap`.
 - Não habilite um bypass amplo para papéis humanos como substituto do fluxo de pull request.
 

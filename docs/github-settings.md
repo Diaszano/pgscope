@@ -30,7 +30,7 @@ The release workflow does not push to `main`. Release Please opens a release pul
 A personal access token is used because pull requests and releases created with `GITHUB_TOKEN` do not trigger workflows: CI would not run on the release PR, and `binaries.yml` would not start when the release is published.
 
 - Keep **Allow auto-merge** enabled.
-- The release PR uses the branch `release-please--branches--main` and the title `chore(release): X.Y.Z`; `scripts/ci/check_pr_metadata.py` accepts that exact branch.
+- The release PR uses the branch `release-please--branches--main--components--pgscope` and the title `chore(release): X.Y.Z`; `scripts/ci/check_pr_metadata.py` accepts that exact branch.
 - `HOMEBREW_TAP_TOKEN` is a personal access token with write access to the contents of `Diaszano/homebrew-tap`.
 - Do not enable a broad human-role bypass as a substitute for the pull request flow.
 

@@ -24,6 +24,7 @@ from scripts.ci.check_pr_metadata import validate_pr
         ("build(deps): bump python from 3.12 to 3.13", "build/docker/python-3.13", "dependabot[bot]"),
         ("refactor!: redesign engine architecture", "refactor/engine", "Diaszano"),
         ("chore(release): 0.6.1", "release-please--branches--main", "Diaszano"),
+        ("chore(release): 0.6.1", "release-please--branches--main--components--pgscope", "Diaszano"),
     ],
 )
 def test_validate_pr_accepts_valid_metadata(title: str, head_ref: str, actor: str) -> None:

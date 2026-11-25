@@ -28,7 +28,7 @@ def test_release_please_stamps_the_lockfile() -> None:
     package = _config()["packages"]["."]
 
     assert package["package-name"] == "pgscope"
-    assert {"type": "toml", "path": "uv.lock", "jsonpath": "$.package[?(@.name=='pgscope')].version"} in package["extra-files"]
+    assert {"type": "toml", "path": "uv.lock", "jsonpath": "$.package[?(@.name.value=='pgscope')].version"} in package["extra-files"]
 
 
 def test_manifest_matches_project_version() -> None:

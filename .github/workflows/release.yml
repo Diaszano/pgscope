@@ -58,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          PR_NUMBER=$(gh pr list --head release-please--branches--main --state open --json number --jq '.[0].number // empty')
+          PR_NUMBER=$(gh pr list --label "autorelease: pending" --state open --json number --jq '.[0].number // empty')
           if [ -z "${PR_NUMBER}" ]; then
             echo "No open release pull request."
             exit 0
