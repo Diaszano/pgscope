@@ -1,5 +1,7 @@
 # Contributing to pgscope
 
+> **English** | [Português (Brasil)](CONTRIBUTING.pt-BR.md)
+
 Thank you for your interest in contributing to `pgscope`! We welcome contributions that maintain high engineering standards, security guarantees, and reproducible automation.
 
 ---

@@ -1,6 +1,6 @@
-# PostgreSQL MCP Tests
+# pgscope Tests
 
-This directory contains tests for the PostgreSQL MCP package.
+This directory contains tests for the pgscope package.
 
 ## Running Tests
 

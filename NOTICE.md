@@ -1,5 +1,7 @@
 # Notice
 
+> **English** | [Português (Brasil)](NOTICE.pt-BR.md)
+
 ## Upstream Attribution
 
 pgscope is based on and extends `postgres-mcp`, originally developed and maintained by:
@@ -7,7 +9,7 @@ pgscope is based on and extends `postgres-mcp`, originally developed and maintai
 - **Author**: Johann Schleier-Smith (<jssmith@crystal.cloud>)
 - **Original Copyright**: Copyright (c) 2024-2025 Crystal Corp.
 - **Original Repository**: [postgres-mcp](https://github.com/crystaldba/postgres-mcp)
-- **License**: MIT License (see [LICENSE](file:///home/diaszano/Downloads/postgres-mcp/LICENSE))
+- **License**: MIT License (see [LICENSE](LICENSE))
 
 All original rights, licenses, and attributions of the upstream work are hereby acknowledged and preserved.
 Subsequent enhancements, CI/CD pipelines, multi-database support, and security hardening are contributed under the same terms.

@@ -12,7 +12,7 @@ Fornece métodos para gerar diferentes tipos de planos EXPLAIN.
 
 ## Uso
 
-A ferramenta explain está integrada ao servidor PostgreSQL MCP e pode ser usada pela API MCP por meio da função:
+A ferramenta explain está integrada ao servidor pgscope e pode ser usada pela API MCP por meio da função:
 
 - `explain_query`
 

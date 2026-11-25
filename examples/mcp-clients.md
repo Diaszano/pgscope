@@ -1,5 +1,7 @@
 # MCP Client Configuration Examples
 
+> **English** | [Português (Brasil)](mcp-clients.pt-BR.md)
+
 This guide provides tested, secure configuration snippets for connecting various LLM clients to **pgscope**.
 
 > **Security Note:** All connection strings below use environment variable expansion (`${DATABASE_URI}`). Never hardcode plaintext database passwords in client configuration files.

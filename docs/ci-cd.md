@@ -1,5 +1,7 @@
 # CI/CD and Automated Release Architecture Guide
 
+> **English** | [Português (Brasil)](ci-cd.pt-BR.md)
+
 This document describes the automated continuous integration and delivery architecture for the **pgscope** server.
 
 ## 1. Pipeline Overview
