@@ -30,7 +30,7 @@ Execute the following verification gates before tagging and publishing any relea
 
 2. **Main Branch & Release Please**:
    - Pushes to `main` evaluate commit history using Conventional Commits.
-   - Release Please opens or updates a release pull request (`chore(release): X.Y.Z`, branch `release-please--branches--main`) that bumps `pyproject.toml`, `uv.lock` and `CHANGELOG.md` (pre-1.0 zero-version policy: breaking changes increment minor).
+   - Release Please opens or updates a release pull request (`chore(release): X.Y.Z`, branch `release-please--branches--main--components--pgscope`) that bumps `pyproject.toml`, `uv.lock` and `CHANGELOG.md` (pre-1.0 zero-version policy: breaking changes increment minor).
    - Auto-merge (squash) is enabled on that PR and completes once the required checks pass. Nothing pushes directly to `main`.
    - Merging the release PR makes Release Please create the `vX.Y.Z` tag and GitHub Release, and the workflow then attaches the wheel and sdist to it. The new flow has not produced a release yet, so remote release artifacts have not been verified for it.
 

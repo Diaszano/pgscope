@@ -56,7 +56,7 @@ def test_release_pr_enables_auto_merge() -> None:
     step = next(step for step in steps if step.get("name") == "Enable auto-merge on the release pull request")
 
     assert step["env"]["GH_TOKEN"] == "${{ secrets.RELEASE_PLEASE_TOKEN }}"
-    assert "release-please--branches--main" in step["run"]
+    assert "autorelease: pending" in step["run"]
     assert "gh pr merge" in step["run"]
     assert "--auto" in step["run"]
     assert "--squash" in step["run"]

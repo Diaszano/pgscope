@@ -122,7 +122,7 @@ Antes de fazer merge de qualquer mudança na `main` ou de criar tags de versões
 
 Um personal access token é usado nos releases porque pull requests e releases criados com o `GITHUB_TOKEN` não disparam outros workflows. Com o token padrão, o CI nunca rodaria no PR de release (seus checks obrigatórios ficariam pendentes) e o `binaries.yml` não iniciaria quando o release fosse publicado.
 
-O pipeline depende de **Allow auto-merge** estar habilitado e do ruleset da `main` exigir os checks de CI. Nada faz push direto na `main`, então nenhum bypass do ruleset é necessário. O PR de release usa a branch `release-please--branches--main`, que o `scripts/ci/check_pr_metadata.py` aceita.
+O pipeline depende de **Allow auto-merge** estar habilitado e do ruleset da `main` exigir os checks de CI. Nada faz push direto na `main`, então nenhum bypass do ruleset é necessário. O PR de release usa a branch `release-please--branches--main--components--pgscope`, que o `scripts/ci/check_pr_metadata.py` aceita.
 
 ## 7. Versões do Python
 

@@ -30,7 +30,7 @@ Execute os seguintes gates de verificação antes de criar a tag e publicar qual
 
 2. **Branch Main e Release Please**:
    - Pushes na `main` avaliam o histórico de commits usando Conventional Commits.
-   - O Release Please abre ou atualiza um PR de release (`chore(release): X.Y.Z`, branch `release-please--branches--main`) que atualiza `pyproject.toml`, `uv.lock` e `CHANGELOG.md` (política de versão zero pré-1.0: mudanças incompatíveis incrementam a minor).
+   - O Release Please abre ou atualiza um PR de release (`chore(release): X.Y.Z`, branch `release-please--branches--main--components--pgscope`) que atualiza `pyproject.toml`, `uv.lock` e `CHANGELOG.md` (política de versão zero pré-1.0: mudanças incompatíveis incrementam a minor).
    - O auto-merge (squash) fica habilitado nesse PR e conclui assim que os checks obrigatórios passam. Nada faz push direto na `main`.
    - Ao fazer o merge do PR de release, o Release Please cria a tag `vX.Y.Z` e o GitHub Release, e o workflow então anexa a ele os pacotes wheel e sdist. O novo fluxo ainda não produziu um release, então os artefatos de release remotos não foram verificados para ele.
 

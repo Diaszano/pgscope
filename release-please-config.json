@@ -13,7 +13,7 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name=='pgscope')].version"
+          "jsonpath": "$.package[?(@.name.value=='pgscope')].version"
         }
       ]
     }

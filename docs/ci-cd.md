@@ -122,7 +122,7 @@ Before merging any change to `main` or tagging production versions, the full sui
 
 A personal access token is used for releases because pull requests and releases created with `GITHUB_TOKEN` do not trigger other workflows. With the default token, CI would never run on the release PR (its required checks would stay pending) and `binaries.yml` would not start when the release is published.
 
-The pipeline relies on **Allow auto-merge** being enabled and on the `main` ruleset requiring the CI checks. Nothing pushes directly to `main`, so no ruleset bypass is needed. The release PR uses the branch `release-please--branches--main`, which `scripts/ci/check_pr_metadata.py` accepts.
+The pipeline relies on **Allow auto-merge** being enabled and on the `main` ruleset requiring the CI checks. Nothing pushes directly to `main`, so no ruleset bypass is needed. The release PR uses the branch `release-please--branches--main--components--pgscope`, which `scripts/ci/check_pr_metadata.py` accepts.
 
 ## 7. Python Versions
 

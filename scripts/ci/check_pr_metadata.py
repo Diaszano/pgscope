@@ -23,7 +23,7 @@ CONVENTIONAL_BRANCH_REGEX = re.compile(
 )
 
 DEPENDABOT_BRANCH_REGEX = re.compile(r"^dependabot/[a-zA-Z0-9_\-\./]+$")
-RELEASE_PLEASE_BRANCH = "release-please--branches--main"
+RELEASE_PLEASE_BRANCHES = {"release-please--branches--main", "release-please--branches--main--components--pgscope"}
 ALLOWED_BOT_ACTORS = {"dependabot[bot]", "dependabot", "github-actions[bot]", "app/dependabot"}
 
 
@@ -58,7 +58,7 @@ def validate_pr(title: str, head_ref: str, actor: str) -> list[str]:
                     f"but actor '{actor}' is not recognized as a dependency bot. "
                     f"Only dependabot bot is allowed to push to dependabot/* branches."
                 )
-        elif clean_branch != RELEASE_PLEASE_BRANCH:
+        elif clean_branch not in RELEASE_PLEASE_BRANCHES:
             if not CONVENTIONAL_BRANCH_REGEX.match(clean_branch):
                 errors.append(
                     f"Source branch name does not match conventional branch pattern: '{clean_branch}'. "

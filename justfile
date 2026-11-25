@@ -37,4 +37,4 @@ nix-claude-desktop:
   NIXPKGS_ALLOW_UNFREE=1 nix run "github:k3d3/claude-desktop-linux-flake#claude-desktop-with-fhs" --impure
 
 release-preview:
-  gh pr list --head release-please--branches--main --json number,title,url
+  gh pr list --label "autorelease: pending" --json number,title,url
