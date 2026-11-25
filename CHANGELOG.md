@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## [0.6.1](https://github.com/Diaszano/pgscope/compare/v0.6.0...v0.6.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **deps:** keep mcp below 2.0 ([89a568f](https://github.com/Diaszano/pgscope/commit/89a568feebc912daff98f9d838a9326b4cfeda43))
+* **deps:** narrow optional pglast 8 node types for pyright ([57f6925](https://github.com/Diaszano/pgscope/commit/57f692546fc6c809334766b60c2629d599f50aa5))
+* **deps:** use StrEnum and reformat docs for ruff 0.17 ([f0a1e2a](https://github.com/Diaszano/pgscope/commit/f0a1e2ad0bca93672600b9b54a5154030895cc61))
+
+
+### Documentation
+
+* update project docs and add pt-BR translations ([7f8b8b6](https://github.com/Diaszano/pgscope/commit/7f8b8b650252ea0b059a2281094faa649868db0f))
+* update project docs and add pt-BR translations ([#36](https://github.com/Diaszano/pgscope/issues/36)) ([98a5320](https://github.com/Diaszano/pgscope/commit/98a532090c6339ad4f3a715bea6b7cf3b4c5b2cd))
+
 ## v0.6.0 (2026-11-18)
 
 ### Refactoring
