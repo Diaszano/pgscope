@@ -32,14 +32,17 @@ def test_proposal_uses_workflow_context_names_and_both_required_postgres_version
     assert "release handoff depends on that job" in content
 
 
-def test_release_bot_guidance_does_not_claim_commit_message_bypass() -> None:
+def test_release_pr_guidance_documents_tokens_and_auto_merge() -> None:
     content = (ROOT / "docs" / "github-settings.md").read_text(encoding="utf-8").lower()
 
+    assert "does not push to `main`" in content
+    assert "release_please_token" in content
+    assert "homebrew_tap_token" in content
     assert "github_token" in content
-    assert "gitHub actions app" in content or "github actions app" in content
-    assert "does not grant ruleset permission" in content
-    assert "commit-message pattern as a bypass" in content
-    assert "create a new credential" in content
+    assert "do not trigger workflows" in content
+    assert "allow auto-merge" in content
+    assert "release-please--branches--main" in content
+    assert "broad human-role bypass" in content
 
 
 def test_remote_rules_and_ghcr_unknowns_are_explicit() -> None:

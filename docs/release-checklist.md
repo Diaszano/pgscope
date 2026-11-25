@@ -4,7 +4,7 @@
 
 Base Version: (evaluated dynamically from `pyproject.toml`)
 Primary Image Registry: `ghcr.io/diaszano/pgscope`
-Release Automation: Python Semantic Release (PSR 10.7.0) via GitHub Actions
+Release Automation: Release Please (googleapis/release-please-action v5.0.0) via GitHub Actions
 
 ## Pre-Release Verification Checklist
 
@@ -28,16 +28,21 @@ Execute the following verification gates before tagging and publishing any relea
    - PR metadata is validated against Conventional Commits.
    - Privileged secrets and publish permissions are blocked on PR events.
 
-2. **Main Branch & Semantic Release**:
+2. **Main Branch & Release Please**:
    - Pushes to `main` evaluate commit history using Conventional Commits.
-   - Python Semantic Release calculates next SemVer (pre-1.0 zero-version policy: breaking changes increment minor).
-   - Python wheels and sdist packages are built and attached to a GitHub Release when a release is produced. Remote release artifacts have not been verified for this readiness review.
+   - Release Please opens or updates a release pull request (`chore(release): X.Y.Z`, branch `release-please--branches--main`) that bumps `pyproject.toml`, `uv.lock` and `CHANGELOG.md` (pre-1.0 zero-version policy: breaking changes increment minor).
+   - Auto-merge (squash) is enabled on that PR and completes once the required checks pass. Nothing pushes directly to `main`.
+   - Merging the release PR makes Release Please create the `vX.Y.Z` tag and GitHub Release, and the workflow then attaches the wheel and sdist to it. The new flow has not produced a release yet, so remote release artifacts have not been verified for it.
 
 3. **GHCR Multiarch Delivery**:
    - Multiarch images (`linux/amd64,linux/arm64`) are built with Docker Buildx and staged using immutable commit SHAs.
    - Container vulnerability scans run with Trivy (fail-closed on HIGH/CRITICAL CVEs).
    - Buildx is configured to generate provenance and SBOM for each image build; registry publication has not been verified.
    - Verified staging digests are promoted to `vX.Y.Z`, `X.Y`, `X`, and `latest` tags on `ghcr.io/diaszano/pgscope`.
+
+4. **Standalone Binaries & Homebrew**:
+   - Publishing the release triggers `.github/workflows/binaries.yml`, which builds `darwin`/`linux` `amd64`/`arm64` tarballs with `sha256` files, uploads them to the release and updates `Casks/pgscope.rb` in `Diaszano/homebrew-tap`.
+   - The workflow fails if `HOMEBREW_TAP_TOKEN` is missing, a checksum is missing, or the tap push fails.
 
 ## Production Rollback & Emergency Backout Procedure
 
@@ -52,4 +57,4 @@ If regressions, unexpected query rejections, or client incompatibilities emerge 
 4. **Binary / Container Rollback**:
    Re-deploy a previously verified image by digest (`ghcr.io/diaszano/pgscope@sha256:<verified-release-digest>`; placeholder only) or a wheel from a verified GitHub Release. Do not assume a mutable tag or release artifact exists until verified.
 5. **Publish-Only Recovery**:
-   If release publication fails midway (e.g., GitHub Release exists but container promotion timed out), trigger `.github/workflows/retry-publish.yml` with the validated release tag to safely republish without bumping versions.
+   If release publication fails midway (e.g., GitHub Release exists but container promotion timed out), trigger `.github/workflows/retry-publish.yml` with the validated release tag to safely republish without bumping versions. If only the standalone binaries or the Homebrew cask failed, run `.github/workflows/binaries.yml` manually (`workflow_dispatch`) with the same tag.

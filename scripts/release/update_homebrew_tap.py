@@ -12,6 +12,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+PLATFORMS = ("darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64")
+
 
 def generate_cask_content(version: str, checksums: dict[str, str], repo: str = "Diaszano/pgscope") -> str:
     """Generate Ruby Cask definition for pgscope standalone binaries."""
@@ -66,7 +68,7 @@ def load_checksums_from_dir(dist_dir: Path, version: str) -> dict[str, str]:
     """Read sha256 checksums from .sha256 files in directory."""
     clean_version = version.lstrip("v")
     checksums: dict[str, str] = {}
-    for platform in ["darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64"]:
+    for platform in PLATFORMS:
         sha_file = dist_dir / f"pgscope_{clean_version}_{platform}.tar.gz.sha256"
         if sha_file.exists():
             first_line = sha_file.read_text(encoding="utf-8").strip().splitlines()[0]
@@ -130,6 +132,10 @@ def main() -> int:
     args = parser.parse_args()
 
     checksums = load_checksums_from_dir(args.dist_dir, args.version)
+    missing = [platform for platform in PLATFORMS if platform not in checksums]
+    if missing:
+        print(f"Error: Missing sha256 checksums for {', '.join(missing)} in {args.dist_dir}.", file=sys.stderr)
+        return 1
     cask_text = generate_cask_content(args.version, checksums)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -137,8 +143,12 @@ def main() -> int:
     print(f"Saved Cask definition to: {args.output}")
 
     if args.push:
-        token = os.environ.get("HOMEBREW_TAP_TOKEN") or os.environ.get("GH_PAT")
-        push_to_homebrew_tap(cask_text, args.version, tap_repo=args.tap_repo, token=token)
+        token = os.environ.get("HOMEBREW_TAP_TOKEN")
+        if not token:
+            print("Error: HOMEBREW_TAP_TOKEN is required to push the cask to the tap.", file=sys.stderr)
+            return 1
+        if not push_to_homebrew_tap(cask_text, args.version, tap_repo=args.tap_repo, token=token):
+            return 1
 
     return 0
 

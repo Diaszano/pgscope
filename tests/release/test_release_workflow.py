@@ -1,7 +1,8 @@
-"""Tests for the reusable semantic release workflow specification and safety invariants."""
+"""Tests for the reusable release workflow specification and safety invariants."""
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -30,19 +31,47 @@ def test_release_workflow_structure_and_concurrency() -> None:
         assert concurrency.get("cancel-in-progress") in ("false", False)
 
 
-def test_workflow_uses_uv_and_pinned_psr() -> None:
+def test_release_job_uses_pinned_release_please_with_pat() -> None:
     wf = _load_release_workflow()
     jobs = wf.get("jobs", {})
-    assert "semantic-release" in jobs, "release.yml must have a 'semantic-release' job"
+    assert "release-please" in jobs, "release.yml must have a 'release-please' job"
 
-    psr_job = jobs["semantic-release"]
-    # Check permissions
-    perms = psr_job.get("permissions", {})
-    assert perms.get("contents") == "write"
+    job = jobs["release-please"]
+    # Only the PAT writes to the repository; the job token stays read-only.
+    assert job.get("permissions") == {"contents": "read"}
 
-    steps_text = yaml.dump(psr_job.get("steps", []))
-    assert "astral-sh/setup-uv" in steps_text
-    assert "python-semantic-release==10.7.0" in steps_text or "semantic-release" in steps_text
+    action = next(step for step in job["steps"] if step.get("id") == "release")
+    assert re.fullmatch(r"googleapis/release-please-action@[0-9a-f]{40}", action["uses"]), "release-please-action must be pinned to a commit SHA"
+    assert action["with"]["token"] == "${{ secrets.RELEASE_PLEASE_TOKEN }}"
+    assert action["with"]["config-file"] == "release-please-config.json"
+    assert action["with"]["manifest-file"] == ".release-please-manifest.json"
+
+    secrets = wf["on"]["workflow_call"]["secrets"]
+    assert secrets["RELEASE_PLEASE_TOKEN"]["required"] in ("true", True)
+
+
+def test_release_pr_enables_auto_merge() -> None:
+    wf = _load_release_workflow()
+    steps = wf["jobs"]["release-please"]["steps"]
+    step = next(step for step in steps if step.get("name") == "Enable auto-merge on the release pull request")
+
+    assert step["env"]["GH_TOKEN"] == "${{ secrets.RELEASE_PLEASE_TOKEN }}"
+    assert "release-please--branches--main" in step["run"]
+    assert "gh pr merge" in step["run"]
+    assert "--auto" in step["run"]
+    assert "--squash" in step["run"]
+
+
+def test_release_publishes_distributions_to_the_release() -> None:
+    wf = _load_release_workflow()
+    job = wf["jobs"]["publish-dist"]
+
+    assert job["needs"] == "release-please"
+    assert job["if"] == "needs.release-please.outputs.released == 'true'"
+    assert job["permissions"] == {"contents": "write"}
+    steps_text = yaml.dump(job["steps"])
+    assert "scripts/release/build.sh" in steps_text
+    assert "gh release upload" in steps_text
 
 
 def test_release_job_outputs_contract() -> None:
@@ -54,11 +83,3 @@ def test_release_job_outputs_contract() -> None:
 
     expected_outputs = {"released", "tag", "release_sha", "version"}
     assert expected_outputs <= set(outputs.keys()), f"Missing required outputs: {expected_outputs - set(outputs.keys())}"
-
-
-def test_release_checkout_full_depth() -> None:
-    wf = _load_release_workflow()
-    jobs = wf.get("jobs", {})
-    psr_job = jobs.get("semantic-release", {})
-    steps_text = yaml.dump(psr_job.get("steps", []))
-    assert "fetch-depth: 0" in steps_text or "fetch-depth: '0'" in steps_text

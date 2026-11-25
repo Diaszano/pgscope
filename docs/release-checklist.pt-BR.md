@@ -4,7 +4,7 @@
 
 Versão Base: (avaliada dinamicamente a partir do `pyproject.toml`)
 Registry de Imagens Principal: `ghcr.io/diaszano/pgscope`
-Automação de Release: Python Semantic Release (PSR 10.7.0) via GitHub Actions
+Automação de Release: Release Please (googleapis/release-please-action v5.0.0) via GitHub Actions
 
 ## Checklist de Verificação Pré-Release
 
@@ -28,16 +28,21 @@ Execute os seguintes gates de verificação antes de criar a tag e publicar qual
    - Os metadados do PR são validados conforme o Conventional Commits.
    - Segredos privilegiados e permissões de publicação são bloqueados em eventos de PR.
 
-2. **Branch Main e Semantic Release**:
+2. **Branch Main e Release Please**:
    - Pushes na `main` avaliam o histórico de commits usando Conventional Commits.
-   - O Python Semantic Release calcula o próximo SemVer (política de versão zero pré-1.0: mudanças incompatíveis incrementam a minor).
-   - Pacotes wheel e sdist do Python são construídos e anexados a um GitHub Release quando um release é produzido. Os artefatos de release remotos não foram verificados nesta revisão de prontidão.
+   - O Release Please abre ou atualiza um PR de release (`chore(release): X.Y.Z`, branch `release-please--branches--main`) que atualiza `pyproject.toml`, `uv.lock` e `CHANGELOG.md` (política de versão zero pré-1.0: mudanças incompatíveis incrementam a minor).
+   - O auto-merge (squash) fica habilitado nesse PR e conclui assim que os checks obrigatórios passam. Nada faz push direto na `main`.
+   - Ao fazer o merge do PR de release, o Release Please cria a tag `vX.Y.Z` e o GitHub Release, e o workflow então anexa a ele os pacotes wheel e sdist. O novo fluxo ainda não produziu um release, então os artefatos de release remotos não foram verificados para ele.
 
 3. **Entrega Multiarquitetura no GHCR**:
    - Imagens multiarquitetura (`linux/amd64,linux/arm64`) são construídas com o Docker Buildx e preparadas (staged) usando SHAs de commit imutáveis.
    - Varreduras de vulnerabilidades de contêiner rodam com o Trivy (fail-closed em CVEs HIGH/CRITICAL).
    - O Buildx está configurado para gerar provenance e SBOM a cada build de imagem; a publicação no registry não foi verificada.
    - Os digests de staging verificados são promovidos para as tags `vX.Y.Z`, `X.Y`, `X` e `latest` em `ghcr.io/diaszano/pgscope`.
+
+4. **Binários Standalone e Homebrew**:
+   - A publicação do release dispara `.github/workflows/binaries.yml`, que constrói os tarballs `darwin`/`linux` `amd64`/`arm64` com arquivos `sha256`, envia-os ao release e atualiza `Casks/pgscope.rb` em `Diaszano/homebrew-tap`.
+   - O workflow falha se `HOMEBREW_TAP_TOKEN` estiver ausente, se faltar algum checksum ou se o push no tap falhar.
 
 ## Procedimento de Rollback em Produção e Backout de Emergência
 
@@ -52,4 +57,4 @@ Se surgirem regressões, rejeições inesperadas de consultas ou incompatibilida
 4. **Rollback de Binário / Contêiner**:
    Faça o redeploy de uma imagem previamente verificada por digest (`ghcr.io/diaszano/pgscope@sha256:<verified-release-digest>`; apenas placeholder) ou de um wheel de um GitHub Release verificado. Não presuma que uma tag mutável ou um artefato de release exista até que seja verificado.
 5. **Recuperação Somente de Publicação**:
-   Se a publicação do release falhar no meio do caminho (por exemplo, o GitHub Release existe, mas a promoção do contêiner sofreu timeout), dispare o `.github/workflows/retry-publish.yml` com a tag de release validada para republicar com segurança sem incrementar versões.
+   Se a publicação do release falhar no meio do caminho (por exemplo, o GitHub Release existe, mas a promoção do contêiner sofreu timeout), dispare o `.github/workflows/retry-publish.yml` com a tag de release validada para republicar com segurança sem incrementar versões. Se apenas os binários standalone ou o cask do Homebrew falharam, execute `.github/workflows/binaries.yml` manualmente (`workflow_dispatch`) com a mesma tag.

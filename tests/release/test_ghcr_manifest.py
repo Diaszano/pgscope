@@ -22,11 +22,11 @@ def test_build_image_job_structure() -> None:
 
     job = jobs["build-image"]
     needs = job.get("needs")
-    assert needs == "semantic-release" or "semantic-release" in needs
+    assert needs == "release-please" or "release-please" in needs
     assert job.get("permissions", {}).get("packages") == "write"
 
     condition = job.get("if", "")
-    assert "needs.semantic-release.outputs.released == 'true'" in condition
+    assert "needs.release-please.outputs.released == 'true'" in condition
 
 
 def test_image_platforms_and_registry() -> None:
@@ -49,7 +49,7 @@ def test_staging_tag_uses_full_sha_and_attestations() -> None:
     assert build_step is not None
 
     with_config = build_step.get("with", {})
-    assert "sha-${{ needs.semantic-release.outputs.release_sha }}" in with_config.get("tags", "")
+    assert "sha-${{ needs.release-please.outputs.release_sha }}" in with_config.get("tags", "")
     assert with_config.get("provenance") in ("true", True)
     assert with_config.get("sbom") in ("true", True)
 
@@ -66,7 +66,7 @@ def test_dockerfile_oci_labels() -> None:
 
 def test_image_builds_stamp_the_release_version() -> None:
     for workflow_name, job_name, expression in [
-        ("release.yml", "build-image", "${{ needs.semantic-release.outputs.version }}"),
+        ("release.yml", "build-image", "${{ needs.release-please.outputs.version }}"),
         ("retry-publish.yml", "republish-image", "${{ needs.validate-ref.outputs.version }}"),
     ]:
         root = Path(__file__).resolve().parents[2]

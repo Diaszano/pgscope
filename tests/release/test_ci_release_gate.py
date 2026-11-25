@@ -57,6 +57,7 @@ def test_fork_pr_has_no_release_permissions() -> None:
 
     workflow = yaml.load((root / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
     assert workflow["permissions"] == {"contents": "read"}
-    assert workflow["jobs"]["semantic-release"]["permissions"] == {"contents": "write"}
+    assert workflow["jobs"]["release-please"]["permissions"] == {"contents": "read"}
+    assert workflow["jobs"]["publish-dist"]["permissions"] == {"contents": "write"}
     assert workflow["jobs"]["build-image"]["permissions"] == {"contents": "read", "packages": "write"}
     assert workflow["jobs"]["promote-image"]["permissions"] == {"contents": "read", "packages": "write"}
