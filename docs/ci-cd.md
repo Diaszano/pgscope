@@ -123,3 +123,12 @@ Before merging any change to `main` or tagging production versions, the full sui
 A personal access token is used for releases because pull requests and releases created with `GITHUB_TOKEN` do not trigger other workflows. With the default token, CI would never run on the release PR (its required checks would stay pending) and `binaries.yml` would not start when the release is published.
 
 The pipeline relies on **Allow auto-merge** being enabled and on the `main` ruleset requiring the CI checks. Nothing pushes directly to `main`, so no ruleset bypass is needed. The release PR uses the branch `release-please--branches--main`, which `scripts/ci/check_pr_metadata.py` accepts.
+
+## 7. Python Versions
+
+| Role | Version | Defined in |
+|------|---------|------------|
+| Minimum supported (floor) | 3.12 | `requires-python`, Ruff `target-version`, Pyright `pythonVersion`; tested by the `unit-floor` CI job |
+| Built, shipped and used for development | 3.13 | `mise.toml` (`python_version`), the CI workflows, the `Dockerfile` and the standalone binaries |
+
+`tests/release/test_python_versions.py` fails if these drift apart. To move to another Python version, change `python_version` in `mise.toml`, the `uv python install` lines in the workflows and the `Dockerfile` image tags together.
