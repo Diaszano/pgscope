@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="assets/pgscope.png" alt="pgscope Logo" width="600"/>
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Upstream PyPI version](https://img.shields.io/pypi/v/pgscope)](https://pypi.org/project/pgscope/)
 [![Discord](https://img.shields.io/discord/1336769798603931789?label=Discord)](https://discord.gg/4BEHC7ZM)
@@ -55,7 +53,7 @@ What we did:
 - 🛠️ Fixed a broken page - by prompting the agent to explore the data, fix queries, and add related content.
 - 🧠 Improved the top movies - by exploring the data and fixing the ORM query to surface more relevant results.
 
-See the video below or read the [play-by-play](examples/movie-app.md).
+See the video below.
 
 https://github.com/user-attachments/assets/24e05745-65e9-4998-b877-a368f1eadc13
 
