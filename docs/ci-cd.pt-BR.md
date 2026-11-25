@@ -123,3 +123,12 @@ Antes de fazer merge de qualquer mudança na `main` ou de criar tags de versões
 Um personal access token é usado nos releases porque pull requests e releases criados com o `GITHUB_TOKEN` não disparam outros workflows. Com o token padrão, o CI nunca rodaria no PR de release (seus checks obrigatórios ficariam pendentes) e o `binaries.yml` não iniciaria quando o release fosse publicado.
 
 O pipeline depende de **Allow auto-merge** estar habilitado e do ruleset da `main` exigir os checks de CI. Nada faz push direto na `main`, então nenhum bypass do ruleset é necessário. O PR de release usa a branch `release-please--branches--main`, que o `scripts/ci/check_pr_metadata.py` aceita.
+
+## 7. Versões do Python
+
+| Papel | Versão | Definida em |
+|-------|--------|-------------|
+| Mínima suportada (piso) | 3.12 | `requires-python`, `target-version` do Ruff e `pythonVersion` do Pyright; testada pelo job de CI `unit-floor` |
+| Construída, entregue e usada no desenvolvimento | 3.13 | `mise.toml` (`python_version`), os workflows de CI, o `Dockerfile` e os binários standalone |
+
+O `tests/release/test_python_versions.py` falha se esses valores divergirem. Para migrar para outra versão do Python, altere juntos o `python_version` em `mise.toml`, as linhas `uv python install` dos workflows e as tags de imagem do `Dockerfile`.

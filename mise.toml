@@ -1,3 +1,10 @@
+[vars]
+python_version = "3.13"
+
 [tools]
-python = "3.13"
+python = "{{ vars.python_version }}"
 uv = "0.13.7"
+
+[env]
+# uv ignores mise's Python and picks the newest interpreter it finds; pin it to the same version.
+UV_PYTHON = "{{ vars.python_version }}"

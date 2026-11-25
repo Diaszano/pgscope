@@ -27,7 +27,7 @@ in
 
   languages.python = {
     enable = true;
-    # version = "3.12";
+    # version = "3.13";
     uv = {
       enable = true;
       sync = {
