@@ -39,11 +39,12 @@ Five expected edge conditions; their owning tasks below must include the named r
 ```python
 from pathlib import Path
 import re
-ci = Path('.github/workflows/ci.yml').read_text()
-assert 'pull_request_target' not in ci
-for action in re.findall(r'uses:\s+([^\s]+)', ci):
-    if not action.startswith('./'):
-        assert re.search(r'@[0-9a-f]{40}$', action)
+
+ci = Path(".github/workflows/ci.yml").read_text()
+assert "pull_request_target" not in ci
+for action in re.findall(r"uses:\s+([^\s]+)", ci):
+    if not action.startswith("./"):
+        assert re.search(r"@[0-9a-f]{40}$", action)
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_action_security.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Resolve current audited SHAs using official release tags and document trailing version comments; `permissions: contents: read` globally, per-job elevated only where required. Do not use `secrets: inherit` if unnecessary.
@@ -64,9 +65,10 @@ for action in re.findall(r'uses:\s+([^\s]+)', ci):
 
 ```python
 from pathlib import Path
-script = Path('scripts/ci/scan_image.sh').read_text()
-assert 'HIGH,CRITICAL' in script and '--exit-code 1' in script
-assert 'linux/amd64' in script and 'linux/arm64' in script
+
+script = Path("scripts/ci/scan_image.sh").read_text()
+assert "HIGH,CRITICAL" in script and "--exit-code 1" in script
+assert "linux/amd64" in script and "linux/arm64" in script
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_image_scan.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Implement fail-closed Bash `set -euo pipefail`, digest syntax validation and per-platform scan commands with `--severity HIGH,CRITICAL --exit-code 1`. Prefer explicit allowlisted, pinned ignore policy rather than `ignore-unfixed` blanket; never parse untrusted artifact name as shell.
@@ -89,9 +91,10 @@ assert 'linux/amd64' in script and 'linux/arm64' in script
 
 ```python
 from pathlib import Path
-policy = Path('SECURITY.md').read_text().lower()
-assert 'expiry' in policy or 'expiration' in policy
-assert 'sbom' in policy and 'provenance' in policy
+
+policy = Path("SECURITY.md").read_text().lower()
+assert "expiry" in policy or "expiration" in policy
+assert "sbom" in policy and "provenance" in policy
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_security_policy.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Schedule read-only code/dependency scanning, supply-chain SBOM attestation requirement and valid exceptions with CVE/package/expires/reviewer. The scheduled workflow never tags/releases or changes `main`.
@@ -112,9 +115,10 @@ assert 'sbom' in policy and 'provenance' in policy
 
 ```python
 from pathlib import Path
-release = Path('.github/workflows/release.yml').read_text()
-assert 'pull_request_target' not in release
-assert 'secrets: inherit' not in release
+
+release = Path(".github/workflows/release.yml").read_text()
+assert "pull_request_target" not in release
+assert "secrets: inherit" not in release
 ```
 - [x] **Step 2: Confirm red.** Run `uv run pytest -q tests/release/test_security_failures.py`. Expected: nonzero until the task behavior is implemented. For workflow changes also run `actionlint .github/workflows/*.yml`. Record the failure before implementation.
 - [x] **Step 3: Implement.** Add regression tests for permission escalation, Trivy failure and malicious tag strings; keep PR workflows sandboxed; coordinate with Plan 05 promotion utility signature.

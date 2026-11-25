@@ -10,7 +10,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from dataclasses import replace
-from enum import Enum
+from enum import StrEnum
 from hashlib import sha256
 from typing import Annotated
 from typing import Any
@@ -82,7 +82,7 @@ def warn_if_query_guardrails_disabled(transport: str, config: QueryBudgetConfig)
         logger.warning("Query guardrails are disabled for remote transport; SQL execution is unbounded.")
 
 
-class AccessMode(str, Enum):
+class AccessMode(StrEnum):
     """SQL access modes for the server."""
 
     UNRESTRICTED = "unrestricted"  # Unrestricted access

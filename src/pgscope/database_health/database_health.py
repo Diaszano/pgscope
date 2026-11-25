@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import List
 
 import mcp.types as types
@@ -21,7 +21,7 @@ ResponseType = List[types.TextContent | types.ImageContent | types.EmbeddedResou
 logger = logging.getLogger(__name__)
 
 
-class HealthType(str, Enum):
+class HealthType(StrEnum):
     INDEX = "index"
     CONNECTION = "connection"
     VACUUM = "vacuum"

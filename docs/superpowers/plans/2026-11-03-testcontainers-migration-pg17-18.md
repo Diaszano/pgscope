@@ -110,6 +110,7 @@ Create a fast test in `tests/unit/test_container_lifecycle.py` that verifies `cr
 ```python
 def test_create_postgres_container_yields_connection():
     from tests.utils import create_postgres_container
+
     gen = create_postgres_container("postgres:16")
     uri, version = next(gen)
     assert uri.startswith("postgresql://")
