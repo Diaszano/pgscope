@@ -41,13 +41,13 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@1edb52594c857e2b5b13128931090f0640537287 # v5.3.0
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           version: "0.13.7"
           enable-cache: true
 
       - name: Set up Python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -111,10 +111,10 @@ jobs:
         uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -127,7 +127,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/diaszano/postgres-mcp:sha-${{ needs.semantic-release.outputs.release_sha }}
+          tags: ghcr.io/diaszano/pgscope:sha-${{ needs.semantic-release.outputs.release_sha }}
           build-args: |
             REVISION=${{ needs.semantic-release.outputs.release_sha }}
             VERSION=${{ needs.semantic-release.outputs.version }}
@@ -149,7 +149,7 @@ jobs:
           ref: ${{ needs.semantic-release.outputs.release_sha }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Install Trivy
         run: |
@@ -163,7 +163,7 @@ jobs:
           trivy --version
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -174,4 +174,4 @@ jobs:
           IMAGE_DIGEST: ${{ needs.build-image.outputs.image_digest }}
           IMAGE_TAG: ${{ needs.semantic-release.outputs.tag }}
         run: |
-          bash scripts/ci/promote_image.sh "ghcr.io/diaszano/postgres-mcp" "$IMAGE_DIGEST" "$IMAGE_TAG"
+          bash scripts/ci/promote_image.sh "ghcr.io/diaszano/pgscope" "$IMAGE_DIGEST" "$IMAGE_TAG"

@@ -2,6 +2,80 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-11-18)
+
+### Refactoring
+
+- Rename project from postgres-mcp to pgscope
+  ([`45bbd7b`](https://github.com/Diaszano/postgres-mcp/commit/45bbd7b4ba1baad1286e0d99eb76803f79761d27))
+
+### Breaking Changes
+
+- The package, CLI and image are now named pgscope, and POSTGRES_MCP_INCLUDE_LANGFUSE_TRACE is now
+  PGSCOPE_INCLUDE_LANGFUSE_TRACE.
+
+
+## v0.5.1 (2026-11-04)
+
+### Bug Fixes
+
+- **ci**: Configure setup-uv arch x86_64 for darwin_amd64 on macos-latest
+  ([`f68821b`](https://github.com/Diaszano/postgres-mcp/commit/f68821bbd7b8ee2c596f7c89df949d6524dd29f2))
+
+- **ci**: Use macos-latest with rosetta for darwin_amd64 binaries
+  ([`5f06119`](https://github.com/Diaszano/postgres-mcp/commit/5f06119ceae49e02ed78f3f11f74393f6e55e874))
+
+
+## v0.5.0 (2026-11-04)
+
+### Bug Fixes
+
+- **ci**: Avoid non-existent replace expression in binaries workflow
+  ([`92ec207`](https://github.com/Diaszano/postgres-mcp/commit/92ec207b1136b2ce6b14071211b4b61fccc5096e))
+
+### Continuous Integration
+
+- **release**: Add multi-os matrix workflow for standalone binaries
+  ([`a5c9173`](https://github.com/Diaszano/postgres-mcp/commit/a5c91736770796f24176a11355001923c7d57b9d))
+
+### Features
+
+- **release**: Add standalone binary packaging script and module entrypoint
+  ([`6f086b9`](https://github.com/Diaszano/postgres-mcp/commit/6f086b924683b200c025f5b41bddc286529b39b6))
+
+- **release**: Automate homebrew tap cask generation and dispatch
+  ([`f7c1e0a`](https://github.com/Diaszano/postgres-mcp/commit/f7c1e0a857f71735f14768602d7184248cab2295))
+
+
+## v0.4.2 (2026-11-04)
+
+### Bug Fixes
+
+- **ci**: Handle not found inspect output during image promotion
+  ([`0635477`](https://github.com/Diaszano/postgres-mcp/commit/0635477585b34d46bfabe3959bf5a6bcc3013d24))
+
+- **release**: Assert pyproject.toml reference dynamically in smoke test
+  ([`2d28b3b`](https://github.com/Diaszano/postgres-mcp/commit/2d28b3b66a0de6ad2c60e551357df44c079b1cd6))
+
+
+## v0.4.1 (2026-11-04)
+
+### Bug Fixes
+
+- **release**: Dynamic version assertion in release metadata tests
+  ([`2a0d2ca`](https://github.com/Diaszano/postgres-mcp/commit/2a0d2ca4a81b8a52b9e3cbb43ebbdc6f4be6103d))
+
+### Build System
+
+- **docker**: Upgrade to python 3.13 and configure dependabot conventions
+  ([`e056825`](https://github.com/Diaszano/postgres-mcp/commit/e0568259b8b8aaf012d277615aa39cbb26c2b001))
+
+### Code Style
+
+- Format single-line imports in test_release_metadata.py
+  ([`edbd184`](https://github.com/Diaszano/postgres-mcp/commit/edbd1841d20437c877ff3552462f4e3692bcdda8))
+
+
 ## v0.4.0 (2026-11-04)
 
 ### Bug Fixes
