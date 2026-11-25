@@ -58,14 +58,19 @@ jobs:
         run: |
           set -euo pipefail
 
-          PR_NUMBER=$(gh pr list --label "autorelease: pending" --state open --json number --jq '.[0].number // empty')
+          # List through the REST API: `gh pr list --label` uses search, which can miss a PR
+          # created seconds ago, so the release PR would never get auto-merge.
+          PR_NUMBERS=$(gh api --paginate "repos/${GH_REPO}/pulls?state=open&per_page=100" \
+            --jq '.[] | select(any(.labels[]; .name == "autorelease: pending")) | .number')
+          PR_NUMBER="${PR_NUMBERS%%$'\n'*}"
           if [ -z "${PR_NUMBER}" ]; then
             echo "No open release pull request."
             exit 0
           fi
 
           echo "Enabling auto-merge for release PR #${PR_NUMBER}"
-          gh pr merge "${PR_NUMBER}" --auto --squash
+          # --auto is refused when every requirement is already met; the PR can then be merged directly.
+          gh pr merge "${PR_NUMBER}" --auto --squash || gh pr merge "${PR_NUMBER}" --squash
 
   publish-dist:
     name: Attach Distributions to Release

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -50,16 +52,67 @@ def test_release_job_uses_pinned_release_please_with_pat() -> None:
     assert secrets["RELEASE_PLEASE_TOKEN"]["required"] in ("true", True)
 
 
-def test_release_pr_enables_auto_merge() -> None:
+def _run_auto_merge_step(tmp_path: Path, *, pr_numbers: str, auto_fails: bool = False) -> tuple[subprocess.CompletedProcess[str], str]:
     wf = _load_release_workflow()
-    steps = wf["jobs"]["release-please"]["steps"]
-    step = next(step for step in steps if step.get("name") == "Enable auto-merge on the release pull request")
-
+    step = next(step for step in wf["jobs"]["release-please"]["steps"] if step.get("name") == "Enable auto-merge on the release pull request")
     assert step["env"]["GH_TOKEN"] == "${{ secrets.RELEASE_PLEASE_TOKEN }}"
-    assert "autorelease: pending" in step["run"]
-    assert "gh pr merge" in step["run"]
-    assert "--auto" in step["run"]
-    assert "--squash" in step["run"]
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    log = tmp_path / "gh.log"
+    (fake_bin / "gh").write_text(
+        "#!/bin/sh\n"
+        'echo "$*" >> "$FAKE_GH_LOG"\n'
+        'case "$1" in\n'
+        '  api) printf "%s" "$FAKE_PR_NUMBERS" ;;\n'
+        '  pr) if [ "$FAKE_AUTO_FAILS" = 1 ]; then case " $* " in *" --auto "*) exit 1 ;; esac; fi ;;\n'
+        "esac\n",
+        encoding="utf-8",
+    )
+    (fake_bin / "gh").chmod(0o755)
+    env = {
+        **os.environ,
+        "PATH": f"{fake_bin}:{os.environ['PATH']}",
+        "GH_REPO": "Diaszano/pgscope",
+        "FAKE_GH_LOG": str(log),
+        "FAKE_PR_NUMBERS": pr_numbers,
+        "FAKE_AUTO_FAILS": "1" if auto_fails else "0",
+    }
+    result = subprocess.run(["bash", "-euo", "pipefail", "-c", step["run"]], env=env, capture_output=True, text=True)
+    return result, log.read_text(encoding="utf-8") if log.exists() else ""
+
+
+def test_release_pr_is_found_through_the_rest_api_not_search(tmp_path: Path) -> None:
+    result, calls = _run_auto_merge_step(tmp_path, pr_numbers="44")
+
+    assert result.returncode == 0, result.stderr
+    assert "api --paginate repos/Diaszano/pgscope/pulls?state=open" in calls
+    assert "pr list" not in calls
+
+
+def test_auto_merge_is_enabled_on_the_release_pr(tmp_path: Path) -> None:
+    result, calls = _run_auto_merge_step(tmp_path, pr_numbers="44\n43")
+
+    assert result.returncode == 0, result.stderr
+    assert "pr merge 44 --auto --squash" in calls
+    assert "pr merge 43" not in calls
+
+
+def test_release_pr_is_merged_directly_when_auto_merge_is_refused(tmp_path: Path) -> None:
+    result, calls = _run_auto_merge_step(tmp_path, pr_numbers="44", auto_fails=True)
+
+    assert result.returncode == 0, result.stderr
+    assert "pr merge 44 --auto --squash" in calls
+    assert "pr merge 44 --squash" in calls.replace("--auto ", "")
+    assert calls.strip().splitlines()[-1] == "pr merge 44 --squash"
+
+
+def test_no_release_pr_is_not_an_error(tmp_path: Path) -> None:
+    result, calls = _run_auto_merge_step(tmp_path, pr_numbers="")
+
+    assert result.returncode == 0, result.stderr
+    assert "No open release pull request." in result.stdout
+    assert "pr merge" not in calls
 
 
 def test_release_publishes_distributions_to_the_release() -> None:
